@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wszystkie biografie – Tutejowie</title>
+
+    <style>
+        :root {
+            --ink: #232a36;
+            --muted: #667085;
+            --line: #e4e7ec;
+            --bg: #fbfbfa;
+            --card: #ffffff;
+            --accent: #d92b57;
+            --accent-dark: #b81f47;
+            --spectrum: linear-gradient(90deg, #0aa5cf 0%, #27c9b8 17%, #6fdc6f 33%, #b6e82e 49%, #ff3d6e 51%, #ff7a45 72%, #ffd43b 100%);
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        /* ---------- Paralaksa: tło przesuwa się wolniej niż treść (prędkość ustawiana w skrypcie na dole strony) ---------- */
+        #parallaxBg {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;                              /* wysokość ustawia skrypt */
+            z-index: -1;
+            pointer-events: none;
+            background: url("t%C5%82o.png") center top / cover no-repeat;   /* plik tło.png obok index.html */
+            will-change: transform;
+        }
+        html.parallax-on #parallaxBg { display: block; }
+        html.parallax-on body { background-image: none; }   /* przy włączonej paralaksie tło rysuje warstwa powyżej */
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background-color: #f1efea;                 /* kolor zapasowy, gdyby obrazek się nie wczytał */
+            background-image: url("t%C5%82o.png");      /* plik tło.png w tym samym folderze co index.html */
+            background-repeat: no-repeat;
+            background-position: center top;
+            background-size: cover;
+            background-attachment: scroll;             /* tło przewija się razem ze stroną */
+            min-height: 100vh;
+            color: var(--ink);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        header { background: var(--ink); color: #fff; text-align: center; padding: 2.5rem 1rem 2.2rem; }
+        header h1 { margin: 0; font-size: 2.4rem; font-weight: normal; letter-spacing: 1px; }
+        header h1 a { color: inherit; text-decoration: none; }
+        header p { margin: 0.5rem 0 0; font-style: italic; opacity: 0.8; }
+        .spectrum { height: 6px; background: var(--spectrum); }
+
+        nav { background: #fff; border-bottom: 1px solid var(--line); text-align: center; padding: 0.8rem; position: sticky; top: 0; z-index: 100; }
+        nav a {
+            color: var(--ink);
+            text-decoration: none;
+            margin: 0 14px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            padding-bottom: 3px;
+            border-bottom: 2px solid transparent;
+        }
+        nav a:hover, nav a.current { border-bottom-color: var(--accent); }
+
+        .container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        section { background: var(--card); padding: 2rem; margin-bottom: 2rem; border-radius: 10px; border: 1px solid var(--line); }
+        h2 { color: var(--ink); margin: 0 0 1rem; font-weight: normal; font-size: 1.7rem; }
+        h2::after { content: ""; display: block; height: 3px; width: 72px; margin-top: 0.5rem; border-radius: 2px; background: var(--spectrum); }
+
+        .lead { margin: 0 0 1.2rem; }
+        .note-admin { margin: 0 0 1rem; padding: 0.5rem 0.8rem; background: #fff8e1; border: 1px dashed #e0b84c; border-radius: 8px; font: 0.84rem sans-serif; color: #7a5b00; }
+
+        /* ---------- czytelnia: lista po lewej, podgląd PDF po prawej ---------- */
+        .lib { display: grid; grid-template-columns: 330px 1fr; gap: 1.4rem; align-items: start; }
+        .lib-list { display: flex; flex-direction: column; gap: 0.7rem; }
+        .lib-list input[type="search"] {
+            width: 100%;
+            font: 0.92rem sans-serif;
+            padding: 0.55rem 0.8rem;
+            border: 1px solid #cfd4dc;
+            border-radius: 8px;
+        }
+        .lib-count { font: 0.82rem sans-serif; color: var(--muted); margin: 0; }
+        .items { display: flex; flex-direction: column; gap: 0.5rem; max-height: 78vh; overflow-y: auto; padding: 2px 4px 2px 2px; }
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+            text-align: left;
+            padding: 0.55rem 0.7rem;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            color: inherit;
+        }
+        .item:hover { border-color: #98a2b3; background: #fafbfc; }
+        .item.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(217, 43, 87, 0.18); background: #fff8fa; }
+        .thumb {
+            flex: none;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background-color: #eef1f5;
+            background-size: cover;
+            background-position: center 20%;
+            border: 1px solid #d5dae2;
+        }
+        .thumb.empty {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23b8c0cc'%3E%3Ccircle cx='50' cy='38' r='17'/%3E%3Cpath d='M14 100c0-26 16-40 36-40s36 14 36 40z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover;
+        }
+        .item .t { min-width: 0; }
+        .item .n { display: block; font: normal 1rem/1.3 Georgia, serif; }
+        .item .y { display: block; font: 0.82rem sans-serif; color: var(--muted); }
+
+        .lib-view { position: sticky; top: 64px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+        .view-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem; padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--line); }
+        .view-head .thumb { width: 64px; height: 64px; }
+        .view-head .who { flex: 1; min-width: 180px; }
+        .view-head h3 { margin: 0; font: normal 1.4rem/1.25 Georgia, serif; }
+        .view-head .y { margin: 0.1rem 0 0; font: 0.88rem sans-serif; color: var(--muted); }
+        .view-head .acts { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font: 0.88rem sans-serif;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+        .btn.ghost { background: #fff; color: var(--ink); border-color: #cfd4dc; }
+        .btn.ghost:hover { background: #f2f4f7; border-color: var(--ink); }
+        #frame { display: block; width: 100%; height: 76vh; min-height: 480px; border: 0; background: #f2f4f7; }
+        .view-note { margin: 0; padding: 0.45rem 1rem; font: 0.78rem sans-serif; color: var(--muted); background: #f8f9fa; border-top: 1px solid var(--line); }
+
+        .empty-box { font-family: sans-serif; font-size: 0.92rem; color: var(--muted); padding: 1.2rem; background: #f8f9fa; border: 1px dashed #cfd4dc; border-radius: 10px; }
+
+        footer { text-align: center; padding: 2rem; font-size: 0.85rem; color: #777; font-family: sans-serif; }
+        footer p { display: inline-block; margin: 0; padding: 0.35rem 1.1rem; background: rgba(255, 255, 255, 0.88); border-radius: 999px; }
+
+        @media (max-width: 900px) {
+            .lib { grid-template-columns: 1fr; }
+            .items { max-height: 300px; }
+            .lib-view { position: static; }
+            #frame { height: 70vh; }
+            section { padding: 1.2rem; }
+            header h1 { font-size: 1.7rem; }
+            nav a { margin: 0 7px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="parallaxBg" aria-hidden="true"></div>
+
+    <header>
+        <h1><a href="index.html">Tutejowie</a></h1>
+        <p>Archiwum biografii</p>
+    </header>
+    <div class="spectrum"></div>
+
+    <nav>
+        <a href="index.html">← Strona główna</a>
+        <a href="index.html#drzewo">Drzewo genealogiczne</a>
+        <a href="index.html#biografie">Biografie</a>
+        <a href="biografie.html" class="current">Wszystkie biografie</a>
+        <a href="index.html#galeria">Galeria rodzinna</a>
+    </nav>
+
+    <div class="container">
+        <section>
+            <h2>Wszystkie biografie</h2>
+            <p class="lead">Wybierz osobę z listy, aby przeczytać jej biografię. Dokumenty są w formacie PDF – można je też otworzyć w nowej karcie lub pobrać.</p>
+            <p class="note-admin" id="adminNote" hidden>Tryb administratora: wyświetlane są Twoje lokalne zmiany (jeszcze nieopublikowane).</p>
+
+            <div class="lib" id="lib">
+                <div class="lib-list">
+                    <input type="search" id="q" placeholder="Szukaj osoby…" aria-label="Szukaj osoby">
+                    <p class="lib-count" id="count"></p>
+                    <div class="items" id="items" role="list"></div>
+                </div>
+
+                <div class="lib-view" id="view">
+                    <div class="view-head">
+                        <div class="thumb" id="vThumb"></div>
+                        <div class="who">
+                            <h3 id="vName"></h3>
+                            <p class="y" id="vYears"></p>
+                        </div>
+                        <div class="acts">
+                            <a class="btn" id="vOpen" target="_blank" rel="noopener">Otwórz PDF</a>
+                            <a class="btn ghost" id="vDownload" download>Pobierz</a>
+                        </div>
+                    </div>
+                    <iframe id="frame" title="Biografia w formacie PDF"></iframe>
+                    <p class="view-note">Jeśli podgląd się nie wyświetla, użyj przycisku „Otwórz PDF”.</p>
+                </div>
+            </div>
+
+            <p class="empty-box" id="empty" hidden>Nie dodano jeszcze żadnej biografii. Dodaj plik PDF osobie w panelu administratora na stronie głównej (pole „Plik PDF z biografią”), a pojawi się tutaj.</p>
+        </section>
+    </div>
+
+    <footer>
+        <p>Tutejowie &copy; 2026. Cyfrowe Archiwum Domowe.</p>
+    </footer>
+
+    <!-- Opcjonalny plik z opublikowanymi danymi (ten sam, którego używa strona główna). -->
+    <script src="dane.js"></script>
+    <script>
+    (function () {
+        "use strict";
+        var LS_DATA = "tuteja_family_draft_v1", LS_ADMIN = "tuteja_admin";
+        var U = "?";
+
+        function $(id) { return document.getElementById(id); }
+        function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+        function clean(s, max) { return (typeof s === "string" ? s.trim() : "").slice(0, max || 200); }
+        function safePdf(s) { s = clean(s, 300); return /^\s*(javascript|data|vbscript):/i.test(s) ? "" : s; }
+        function safePhoto(s) {
+            if (typeof s !== "string") return "";
+            s = s.trim();
+            if (/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(s)) return s.length < 700000 ? s : "";
+            if (/^\s*[a-z][a-z0-9+.\-]*:/i.test(s) && !/^https?:/i.test(s)) return "";
+            return s.slice(0, 300);
+        }
+        function yearNum(s) { var m = /(\d{4})/.exec(s || ""); return m ? parseInt(m[1], 10) : null; }
+        function lifeYears(p) {
+            var by = yearNum(p.b), du = (p.d === U), dy = du ? null : yearNum(p.d);
+            if (by && du) return by + " – ?";
+            if (by && dy) return by + " – " + dy;
+            if (by) return "ur. " + by;
+            if (du) return p.gender === "male" ? "zmarł (brak dat)" : "zmarła (brak dat)";
+            if (dy) return "zm. " + dy;
+            return "";
+        }
+
+        /* dane wbudowane – gdy nie ma pliku dane.js (taka sama osoba jak w danych początkowych strony głównej) */
+        var FALLBACK = { people: [{
+            id: 33, name: "Antoni Hajdus", gender: "male", b: "1907", d: "1991", photo: "",
+            pdf: "Antoni-Hajdus-1907-1991.pdf"
+        }] };
+
+        function loadRaw() {
+            if (lsGet(LS_ADMIN) === "1") {
+                var raw = lsGet(LS_DATA);
+                if (raw) {
+                    try {
+                        var d = JSON.parse(raw);
+                        if (d && Array.isArray(d.people)) { $("adminNote").hidden = false; return d; }
+                    } catch (e) {}
+                }
+            }
+            if (window.FAMILY_DATA && Array.isArray(window.FAMILY_DATA.people)) return window.FAMILY_DATA;
+            return FALLBACK;
+        }
+
+        var people = loadRaw().people.map(function (r) {
+            return {
+                id: parseInt(r.id, 10) || 0, name: clean(r.name, 120) || "Bez nazwy",
+                gender: r.gender === "female" ? "female" : "male",
+                b: clean(r.b, 40) || null, d: clean(r.d, 40) || null,
+                photo: safePhoto(r.photo), pdf: safePdf(r.pdf)
+            };
+        }).filter(function (p) { return p.pdf; });
+
+        people.sort(function (a, b) {
+            var ya = yearNum(a.b), yb = yearNum(b.b);
+            if (ya == null && yb == null) return a.name.localeCompare(b.name, "pl");
+            if (ya == null) return 1;
+            if (yb == null) return -1;
+            return (ya - yb) || a.name.localeCompare(b.name, "pl");
+        });
+
+        function setThumb(node, p) {
+            node.className = node.className.replace(/\s*empty/, "");
+            if (p.photo) {
+                node.style.backgroundImage = 'url("' + p.photo.replace(/"/g, "%22") + '")';
+            } else {
+                node.style.backgroundImage = "";
+                node.className += " empty";
+            }
+        }
+        function plBio(n) {
+            var m10 = n % 10, m100 = n % 100;
+            if (n === 1) return "biografia";
+            return (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) ? "biografie" : "biografii";
+        }
+
+        var current = null;
+
+        function show(p, noHash) {
+            current = p;
+            $("vName").textContent = p.name;
+            $("vYears").textContent = lifeYears(p);
+            setThumb($("vThumb"), p);
+            var href = encodeURI(p.pdf);
+            $("vOpen").href = href;
+            $("vDownload").href = href;
+            $("frame").src = href + "#view=FitH";
+            Array.prototype.forEach.call($("items").children, function (b) {
+                b.classList.toggle("active", Number(b.getAttribute("data-id")) === p.id);
+            });
+            if (!noHash) { try { history.replaceState(null, "", "#" + p.id); } catch (e) {} }
+        }
+
+        function renderList() {
+            var q = $("q").value.trim().toLowerCase();
+            var box = $("items");
+            box.innerHTML = "";
+            var shown = people.filter(function (p) { return !q || p.name.toLowerCase().indexOf(q) !== -1; });
+            $("count").textContent = shown.length + " " + plBio(shown.length) + (q ? " (z " + people.length + ")" : "");
+            shown.forEach(function (p) {
+                var b = document.createElement("button");
+                b.type = "button";
+                b.className = "item" + (current && current.id === p.id ? " active" : "");
+                b.setAttribute("data-id", p.id);
+                b.setAttribute("role", "listitem");
+                var th = document.createElement("div");
+                th.className = "thumb";
+                setThumb(th, p);
+                var t = document.createElement("div");
+                t.className = "t";
+                var n = document.createElement("span"); n.className = "n"; n.textContent = p.name;
+                var y = document.createElement("span"); y.className = "y"; y.textContent = lifeYears(p);
+                t.appendChild(n); t.appendChild(y);
+                b.appendChild(th); b.appendChild(t);
+                b.addEventListener("click", function () { show(p); });
+                box.appendChild(b);
+            });
+        }
+
+        $("q").addEventListener("input", renderList);
+
+        if (!people.length) {
+            $("lib").hidden = true;
+            $("empty").hidden = false;
+        } else {
+            var wanted = parseInt((location.hash || "").replace("#", ""), 10);
+            var start = people.filter(function (p) { return p.id === wanted; })[0] || people[0];
+            current = start;
+            renderList();
+            show(start, true);
+        }
+    })();
+    </script>
+
+    <script>
+    /* Efekt paralaksy: tło przesuwa się wolniej niż treść strony.
+       PREDKOSC: 0 = tło stoi w miejscu, 1 = tło przewija się tak samo szybko jak treść.
+       Przy ustawieniu systemowym „ogranicz ruch” (lub wyłączonym JavaScript) tło po prostu przewija się razem ze stroną. */
+    (function () {
+        var PREDKOSC = 0.4;
+        var layer = document.getElementById("parallaxBg");
+        if (!layer || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+        var root = document.documentElement, maxScroll = 0, ticking = false;
+
+        function update() {
+            ticking = false;
+            var y = Math.min(Math.max(window.pageYOffset || 0, 0), maxScroll);
+            layer.style.transform = "translate3d(0," + (-y * PREDKOSC).toFixed(1) + "px,0)";
+        }
+        function measure() {
+            var vh = window.innerHeight;
+            maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - vh);
+            layer.style.height = Math.ceil(vh + maxScroll * PREDKOSC) + "px";   // warstwa pokrywa cały zakres przewijania
+            update();
+        }
+        function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+
+        root.classList.add("parallax-on");
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", measure);
+        window.addEventListener("load", measure);
+        if (window.ResizeObserver) new ResizeObserver(measure).observe(document.body);
+        measure();
+    })();
+    </script>
+
+</body>
+</html>

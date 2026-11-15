@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pełna galeria – Tutejowie</title>
+
+    <style>
+        :root {
+            --ink: #232a36;
+            --muted: #667085;
+            --line: #e4e7ec;
+            --bg: #fbfbfa;
+            --card: #ffffff;
+            --accent: #d92b57;
+            --accent-dark: #b81f47;
+            --spectrum: linear-gradient(90deg, #0aa5cf 0%, #27c9b8 17%, #6fdc6f 33%, #b6e82e 49%, #ff3d6e 51%, #ff7a45 72%, #ffd43b 100%);
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        /* ---------- Paralaksa: tło przesuwa się wolniej niż treść (prędkość ustawiana w skrypcie na dole strony) ---------- */
+        #parallaxBg {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;                              /* wysokość ustawia skrypt */
+            z-index: -1;
+            pointer-events: none;
+            background: url("t%C5%82o.png") center top / cover no-repeat;   /* plik tło.png obok index.html */
+            will-change: transform;
+        }
+        html.parallax-on #parallaxBg { display: block; }
+        html.parallax-on body { background-image: none; }   /* przy włączonej paralaksie tło rysuje warstwa powyżej */
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background-color: #f1efea;                 /* kolor zapasowy, gdyby obrazek się nie wczytał */
+            background-image: url("t%C5%82o.png");      /* plik tło.png w tym samym folderze co index.html */
+            background-repeat: no-repeat;
+            background-position: center top;
+            background-size: cover;
+            background-attachment: scroll;             /* tło przewija się razem ze stroną */
+            min-height: 100vh;
+            color: var(--ink);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        header { background: var(--ink); color: #fff; text-align: center; padding: 2.5rem 1rem 2.2rem; }
+        header h1 { margin: 0; font-size: 2.4rem; font-weight: normal; letter-spacing: 1px; }
+        header h1 a { color: inherit; text-decoration: none; }
+        header p { margin: 0.5rem 0 0; font-style: italic; opacity: 0.8; }
+        .spectrum { height: 6px; background: var(--spectrum); }
+
+        nav { background: #fff; border-bottom: 1px solid var(--line); text-align: center; padding: 0.8rem; position: sticky; top: 0; z-index: 100; }
+        nav a {
+            color: var(--ink);
+            text-decoration: none;
+            margin: 0 14px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            padding-bottom: 3px;
+            border-bottom: 2px solid transparent;
+        }
+        nav a:hover, nav a.current { border-bottom-color: var(--accent); }
+
+        .container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        section { background: var(--card); padding: 2rem; margin-bottom: 2rem; border-radius: 10px; border: 1px solid var(--line); }
+        h2 { color: var(--ink); margin: 0 0 1rem; font-weight: normal; font-size: 1.7rem; }
+        h2::after { content: ""; display: block; height: 3px; width: 72px; margin-top: 0.5rem; border-radius: 2px; background: var(--spectrum); }
+
+        .lead { margin: 0 0 1.2rem; }
+        .note-admin { margin: 0 0 1rem; padding: 0.5rem 0.8rem; background: #fff8e1; border: 1px dashed #e0b84c; border-radius: 8px; font: 0.84rem sans-serif; color: #7a5b00; }
+
+        /* ---------- galeria ---------- */
+        .g-tools { display: flex; flex-wrap: wrap; gap: 0.7rem 1rem; align-items: center; justify-content: space-between; margin: 0 0 0.7rem; font-family: sans-serif; }
+        .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+        .chip { font: 0.84rem sans-serif; padding: 0.35rem 0.9rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; color: var(--ink); cursor: pointer; }
+        .chip:hover { border-color: var(--ink); }
+        .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+        .g-right { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+        .g-right select, .g-filters select {
+            font: 0.9rem sans-serif;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #cfd4dc;
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+        }
+        .g-filters { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; margin: 0 0 1rem; font: 0.85rem sans-serif; color: var(--muted); }
+        .g-filters label { display: inline-flex; align-items: center; gap: 0.45rem; }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font: 0.88rem sans-serif;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+        .btn.ghost { background: #fff; color: var(--ink); border-color: #cfd4dc; }
+        .btn.ghost:hover { background: #f2f4f7; border-color: var(--ink); }
+        .g-count { margin: 0 0 0.8rem; font: 0.85rem sans-serif; color: var(--muted); }
+        .g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.1rem; }
+        .g-card { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 8px rgba(20, 30, 50, 0.06); transition: transform 0.2s, box-shadow 0.2s; padding: 0; text-align: left; font-family: inherit; color: inherit; }
+        .g-card:hover, .g-card:focus-visible { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(20, 30, 50, 0.16); outline: none; }
+        .g-card .ph { aspect-ratio: 4 / 3; background: #eef1f5; }
+        .g-card .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .g-card .ph img.broken { visibility: hidden; }
+        .g-card .cap { padding: 0.6rem 0.8rem 0.75rem; }
+        .g-card .t { margin: 0; font: normal 0.98rem/1.3 Georgia, serif; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
+        .g-card .m { margin: 0.2rem 0 0; font: 0.8rem sans-serif; color: var(--muted); min-height: 1.1em; }
+        .g-card .p { margin: 0.25rem 0 0; font: 0.78rem sans-serif; color: #475467; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.1em; }
+        .embed-note { margin: 0 0 1rem; padding: 0.7rem 0.9rem; background: #f4f6f8; border-radius: 8px; font: 0.86rem/1.5 sans-serif; color: #475467; }
+        #embed { display: block; width: 100%; height: 78vh; min-height: 480px; border: 1px solid var(--line); border-radius: 10px; background: #f2f4f7; }
+        .empty-box { font-family: sans-serif; font-size: 0.92rem; color: var(--muted); padding: 1.2rem; background: #f8f9fa; border: 1px dashed #cfd4dc; border-radius: 10px; }
+        footer { text-align: center; padding: 2rem; font-size: 0.85rem; color: #777; font-family: sans-serif; }
+        footer p { display: inline-block; margin: 0; padding: 0.35rem 1.1rem; background: rgba(255, 255, 255, 0.88); border-radius: 999px; }
+
+        /* ---------- podgląd powiększony z panelem opisu ---------- */
+        body.lb-open { overflow: hidden; }
+        .lb { position: fixed; inset: 0; z-index: 1500; background: rgba(8, 12, 20, 0.95); display: flex; }
+        .lb-main { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; padding: 3.2rem 4.5rem 2.2rem; }
+        .lb-fig { margin: 0; max-width: 100%; max-height: 100%; display: flex; }
+        .lb-fig img { max-width: 100%; max-height: calc(100vh - 6rem); object-fit: contain; border-radius: 6px; background: #111; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); transition: opacity 0.2s; }
+        .lb-fig img.loading { opacity: 0.35; }
+        .lb-count { position: absolute; top: 1rem; left: 1.4rem; color: #c6ccd8; font: 0.85rem sans-serif; }
+        .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 2rem; line-height: 1; padding: 0 0 4px; cursor: pointer; }
+        .lb-nav:hover { background: rgba(255, 255, 255, 0.28); }
+        .lb-nav.prev { left: 1rem; }
+        .lb-nav.next { right: 1rem; }
+        .lb-side { position: relative; flex: none; width: min(410px, 36vw); min-width: 320px; background: #fff; color: var(--ink); display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0, 0, 0, 0.35); font-family: sans-serif; }
+        .lb-x { position: absolute; top: 0.7rem; right: 0.8rem; z-index: 2; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #f2f4f7; color: #475467; font-size: 1.7rem; line-height: 1; padding: 0 0 3px; cursor: pointer; }
+        .lb-x:hover { background: #e4e7ec; color: var(--ink); }
+        .lb-side-in { flex: 1; overflow-y: auto; padding: 1.7rem 1.5rem 1rem; }
+        .lb-kicker { margin: 0 2.8rem 0.3rem 0; font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .lb-title { margin: 0; padding-right: 2.8rem; font: normal 1.55rem/1.25 Georgia, serif; }
+        .lb-date { margin: 0.55rem 0 0; display: flex; align-items: center; gap: 0.45rem; font-size: 0.92rem; color: #475467; }
+        .lb-date::before { content: ""; width: 16px; height: 16px; flex: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M16 3v4M8 3v4M3 11h18'/%3E%3C/svg%3E") center / contain no-repeat; }
+        .lb-sec { margin-top: 1.5rem; }
+        .lb-sec h4 { margin: 0 0 0.5rem; font-size: 0.78rem; font-weight: 600; color: var(--muted); letter-spacing: 0.4px; }
+        .lb-desc { margin: 0; font: 1rem/1.65 Georgia, serif; white-space: pre-wrap; }
+        .lb-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .lb-chip { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.85rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; font: 0.85rem sans-serif; color: var(--ink); text-decoration: none; cursor: pointer; }
+        .lb-chip::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c, #999); }
+        .lb-chip:hover { border-color: var(--ink); }
+        /* ramka osoby na zdjęciu */
+        .lb-stage { position: relative; display: flex; max-width: 100%; border-radius: 6px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); }
+        .lb-stage img { box-shadow: none !important; border-radius: 0 !important; display: block; }
+        .lb-frame { position: absolute; border: 3px solid var(--c, #fff); border-radius: 4px; box-shadow: 0 0 0 100vmax rgba(8, 12, 20, 0.55), 0 0 12px 2px rgba(0, 0, 0, 0.35); pointer-events: none; animation: lbFrameIn 0.25s ease-out; }
+        .lb-frame span { position: absolute; left: 0; bottom: 100%; margin-bottom: 3px; max-width: 240px; padding: 0.1rem 0.55rem; border-radius: 4px; background: var(--c, #fff); color: #101828; font: 600 0.78rem sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lb-frame.low span { bottom: auto; top: 100%; margin: 3px 0 0; }
+        @keyframes lbFrameIn { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+        .lb-chip.on { background: #eef1f5; border-color: var(--c, #475467); font-weight: 600; box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 2px var(--c, #475467); }
+        .lb-chip.has-box::after { content: ""; width: 11px; height: 11px; border: 1.5px solid #98a2b3; border-radius: 2px; }
+        .lb-chip.on.has-box::after { border-color: var(--c, #475467); }
+        .lb-note { margin: 0.7rem 0 0; font: 0.82rem/1.4 sans-serif; color: var(--muted); }
+        .lb-hint { margin: 0.6rem 0 0; font: 0.78rem/1.4 sans-serif; color: var(--muted); }
+        .lb-treebtn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; margin: 0 0 0.8rem; padding: 0.7rem 1rem; border: 0; border-radius: 10px; background: var(--ink); color: #fff !important; font: 600 0.92rem sans-serif; text-decoration: none !important; cursor: pointer; }
+        .lb-treebtn:hover { background: #3a4558; text-decoration: none !important; }
+        .lb-treebtn small { font: 400 0.8rem sans-serif; opacity: 0.8; }
+        .lb-side-foot { padding: 0.9rem 1.5rem 1.1rem; border-top: 1px solid var(--line); font-size: 0.88rem; }
+        .lb-side-foot a { color: var(--accent); text-decoration: none; }
+        .lb-side-foot a:hover { text-decoration: underline; }
+        /* układ: tagi rodzin po lewej, galeria po prawej */
+        .g-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 1.6rem; align-items: start; }
+        .g-side { position: sticky; top: 4.2rem; font-family: sans-serif; }
+        .g-side h3 { margin: 0 0 0.6rem; font: 600 0.74rem sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+        .tags { display: flex; flex-direction: column; gap: 0.45rem; }
+        .tag { display: flex; align-items: center; gap: 0.6rem; width: 100%; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #cfd4dc; border-left: 6px solid var(--c); border-radius: 10px; background: #fff; color: var(--ink); font: 0.92rem Georgia, serif; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+        .tag:hover { border-color: var(--ink); border-left-color: var(--c); }
+        .tag.on { background: var(--c); border-color: var(--c); color: #fff; }
+        .tag .n { margin-left: auto; font: 0.74rem sans-serif; padding: 0.05rem 0.5rem; border-radius: 999px; background: #f2f4f7; color: var(--muted); }
+        .tag.on .n { background: rgba(255, 255, 255, 0.28); color: #fff; }
+        .tag[disabled] { opacity: 0.45; cursor: default; }
+        .side-hint { margin: 0.8rem 0 0; font: 0.76rem/1.45 sans-serif; color: var(--muted); }
+
+        /* wyszukiwarka – taka sama jak w drzewie */
+        .search { position: relative; }
+        .search input { width: 300px; max-width: 100%; font: 0.9rem sans-serif; padding: 0.5rem 2rem 0.5rem 2.15rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; color: var(--ink); transition: border-color 0.15s, box-shadow 0.15s; }
+        .search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217, 43, 87, 0.15); }
+        .search-ic { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #98a2b3; pointer-events: none; }
+        .search-x { position: absolute; right: 0.45rem; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border: 0; border-radius: 50%; background: #e4e7ec; color: #475467; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0; }
+        .search-x:hover { background: #cfd4dc; }
+        .search-list { position: absolute; top: calc(100% + 8px); right: 0; width: min(390px, 92vw); max-height: 380px; overflow-y: auto; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 34px rgba(20, 30, 50, 0.22); z-index: 60; padding: 0.3rem; text-align: left; }
+        .sr-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; position: sticky; top: -0.3rem; z-index: 1; background: #fff; margin: -0.3rem -0.3rem 0.3rem; padding: 0.45rem 0.8rem; font: 0.78rem sans-serif; color: var(--muted); border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; }
+        .sr-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.45rem 0.6rem; border-radius: 8px; cursor: pointer; }
+        .sr-item.active { background: #f2f4f7; }
+        .sr-av { flex: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 600 0.8rem Georgia, serif; background-size: cover; background-position: center 20%; border: 2px solid var(--c, #aab2bf); }
+        .sr-t { min-width: 0; flex: 1; }
+        .sr-n { display: block; font: normal 1rem/1.25 Georgia, serif; color: var(--ink); }
+        .sr-n mark { background: rgba(217, 43, 87, 0.16); color: inherit; border-radius: 2px; padding: 0 1px; font-weight: 700; }
+        .sr-s { display: block; font: 0.78rem sans-serif; color: var(--muted); }
+        .sr-tag { margin-left: auto; font: 0.7rem sans-serif; color: var(--muted); background: #f2f4f7; border-radius: 999px; padding: 0.1rem 0.55rem; white-space: nowrap; }
+        .sr-empty { padding: 0.9rem 0.8rem; font: 0.86rem sans-serif; color: var(--muted); }
+        /* aktywne filtry */
+        .active-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0 0 0.8rem; font-family: sans-serif; }
+        .pf { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.35rem 0.25rem 0.8rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; font: 0.83rem sans-serif; }
+        .pf::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c, #999); }
+        .pf button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: #e4e7ec; color: #475467; cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0; }
+        .pf button:hover { background: #cfd4dc; }
+        .linkbtn { border: 0; background: none; color: var(--accent); font: 0.83rem sans-serif; cursor: pointer; padding: 0.2rem 0.3rem; }
+        .linkbtn:hover { text-decoration: underline; }
+        @media (max-width: 900px) {
+            .g-layout { grid-template-columns: 1fr; gap: 1rem; }
+            .g-side { position: static; }
+            .tags { flex-direction: row; flex-wrap: wrap; }
+            .tag { width: auto; }
+            .side-hint { display: none; }
+            section { padding: 1.2rem; }
+            header h1 { font-size: 1.7rem; }
+            nav a { margin: 0 7px; font-size: 0.8rem; }
+            .search input { width: 100%; }
+            .lb { flex-direction: column; }
+            .lb-main { flex: none; height: 56vh; padding: 2.8rem 0.6rem 0.6rem; }
+            .lb-fig img { max-height: calc(56vh - 3.4rem); }
+            .lb-side { width: 100%; min-width: 0; flex: 1; min-height: 0; box-shadow: none; }
+            .lb-nav { width: 42px; height: 42px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="parallaxBg" aria-hidden="true"></div>
+
+    <header>
+        <h1><a href="index.html">Tutejowie</a></h1>
+        <p>Galeria rodzinna</p>
+    </header>
+    <div class="spectrum"></div>
+
+    <nav>
+        <a href="index.html">← Strona główna</a>
+        <a href="index.html#drzewo">Drzewo genealogiczne</a>
+        <a href="index.html#biografie">Biografie</a>
+        <a href="biografie.html">Wszystkie biografie</a>
+        <a href="galeria.html" class="current">Pełna galeria</a>
+    </nav>
+
+    <div class="container">
+        <section>
+            <h2>Pełna galeria</h2>
+            <p class="lead">Archiwalne fotografie przodków, spotkań rodzinnych oraz pamiątek historycznych. Kliknij zdjęcie, aby je powiększyć i przeczytać opis; strzałkami lub klawiszami ← → przełączasz zdjęcia.</p>
+            <p class="note-admin" id="adminNote" hidden>Tryb administratora: wyświetlane są Twoje lokalne zmiany (jeszcze nieopublikowane).</p>
+
+            <div class="g-layout" id="layout">
+                <aside class="g-side" id="side" aria-label="Rodziny">
+                    <h3>Rodziny</h3>
+                    <div class="tags" id="tags" role="group" aria-label="Filtr: rodzina"></div>
+                    <p class="side-hint">Możesz zaznaczyć kilka rodzin naraz – pokażemy zdjęcia osób z którejkolwiek z nich.</p>
+                </aside>
+                <div class="g-main">
+                    <div class="g-tools" id="tools">
+                        <div class="chips" id="chips" role="group" aria-label="Albumy"></div>
+                        <div class="g-right">
+                            <div class="search" id="search">
+                                <svg class="search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                                <input id="q" type="text" role="combobox" aria-expanded="false" aria-controls="searchList" aria-autocomplete="list" placeholder="Szukaj osoby lub zdjęcia…" aria-label="Szukaj osoby lub zdjęcia" autocomplete="off" spellcheck="false">
+                                <button type="button" class="search-x" id="searchX" aria-label="Wyczyść wyszukiwanie" hidden>&times;</button>
+                                <div class="search-list" id="searchList" role="listbox" aria-label="Wyniki wyszukiwania" hidden></div>
+                            </div>
+                            <a class="btn ghost" id="folderLink" target="_blank" rel="noopener" hidden>Otwórz folder na Dysku Google ↗</a>
+                        </div>
+                    </div>
+                    <div class="g-filters" id="filters">
+                        <label>Sortuj <select id="sortSel" aria-label="Sortowanie">
+                            <option value="date-asc">wg daty – od najstarszych</option>
+                            <option value="date-desc">wg daty – od najnowszych</option>
+                            <option value="title">wg nazwy A–Z</option>
+                            <option value="album">wg albumu</option>
+                        </select></label>
+                    </div>
+                    <div class="active-row" id="active" hidden></div>
+                    <p class="g-count" id="count"></p>
+                    <div class="g-grid" id="grid"></div>
+                    <p class="empty-box" id="none" hidden>Żadne zdjęcie nie pasuje do wybranych filtrów.</p>
+                </div>
+            </div>
+
+            <div id="fallback" hidden>
+                <p class="embed-note">Lista zdjęć nie została jeszcze zapisana w serwisie, dlatego poniżej widać podgląd folderu z Dysku Google. Administrator może go zamienić na tę galerię w panelu („Galeria” → „Synchronizuj z folderem”).</p>
+                <iframe id="embed" title="Folder ze zdjęciami na Dysku Google" loading="lazy"></iframe>
+            </div>
+            <p class="empty-box" id="empty" hidden>W galerii nie ma jeszcze zdjęć.</p>
+        </section>
+    </div>
+
+    <footer>
+        <p>Tutejowie &copy; 2026. Cyfrowe Archiwum Domowe.</p>
+    </footer>
+
+    <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia">
+        <div class="lb-main" id="lbMain">
+            <div class="lb-count" id="lbCount"></div>
+            <button type="button" class="lb-nav prev" id="lbPrev" aria-label="Poprzednie zdjęcie">&#8249;</button>
+            <figure class="lb-fig"><span class="lb-stage" id="lbStage"><img id="lbImg" alt="" referrerpolicy="no-referrer"><span class="lb-frame" id="lbFrame" hidden><span id="lbFrameName"></span></span></span></figure>
+            <button type="button" class="lb-nav next" id="lbNext" aria-label="Następne zdjęcie">&#8250;</button>
+        </div>
+        <aside class="lb-side" id="lbSide" aria-label="Opis zdjęcia">
+            <button type="button" class="lb-x" id="lbX" aria-label="Zamknij podgląd">&times;</button>
+            <div class="lb-side-in" id="lbSideIn">
+                <p class="lb-kicker" id="lbAlbum"></p>
+                <h3 class="lb-title" id="lbTitle"></h3>
+                <p class="lb-date" id="lbDate"></p>
+                <div class="lb-sec" id="lbDescBox"><h4>Opis</h4><p class="lb-desc" id="lbDesc"></p></div>
+                <div class="lb-sec" id="lbPeopleBox"><h4>Osoby na zdjęciu</h4><div class="lb-chips" id="lbPeople"></div><p class="lb-hint" id="lbHint">Kliknij osobę, aby zobaczyć ją na zdjęciu.</p><p class="lb-note" id="lbNote" hidden>Tej osoby nie zaznaczono jeszcze na zdjęciu.</p></div>
+            </div>
+            <div class="lb-side-foot"><a class="lb-treebtn" id="lbTree" hidden><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Pokaż osobę w drzewie <small id="lbTreeName"></small></a><a id="lbOpen" target="_blank" rel="noopener"></a></div>
+        </aside>
+    </div>
+
+    <!-- Opcjonalny plik z opublikowanymi danymi (ten sam, którego używa strona główna). -->
+    <script src="dane.js"></script>
+    <script>
+    (function () {
+        "use strict";
+        var LS_DATA = "tuteja_family_draft_v1", LS_ADMIN = "tuteja_admin";
+        var DEFAULT_FOLDER_URL = "https://drive.google.com/drive/folders/1y1DfEpl5tj8DigdmCUcrGNjYY3lA1Dy7";
+
+        function $(id) { return document.getElementById(id); }
+        function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+        function clean(s, max) { return (typeof s === "string" ? s.trim() : "").slice(0, max || 200); }
+        function fold(s) { return String(s || "").toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+        function driveFolderId(url) {
+            var m = /\/folders\/([A-Za-z0-9_-]{10,})/.exec(url || "") || /[?&]id=([A-Za-z0-9_-]{10,})/.exec(url || "");
+            return m ? m[1] : "";
+        }
+        function safeUrl(s) {
+            s = clean(s, 300);
+            if (!s) return "";
+            if (/^\s*[a-z][a-z0-9+.\-]*:/i.test(s) && !/^https?:/i.test(s)) return "";
+            return s;
+        }
+        function cleanBoxes(b, ppl) {                       // ramki osób na zdjęciu: {idOsoby: [x, y, szer., wys.]} – ułamki 0–1 szerokości/wysokości zdjęcia
+            var out = {};
+            if (!b || typeof b !== "object") return out;
+            ppl.forEach(function (id) {
+                var r = b[id];
+                if (!Array.isArray(r) || r.length !== 4) return;
+                var v = r.map(Number);
+                if (!v.every(isFinite)) return;
+                var x = Math.min(1, Math.max(0, v[0])), y = Math.min(1, Math.max(0, v[1]));
+                var w = Math.min(1 - x, Math.max(0, v[2])), h = Math.min(1 - y, Math.max(0, v[3]));
+                if (w < 0.01 || h < 0.01) return;
+                out[id] = [x, y, w, h].map(function (n) { return Math.round(n * 10000) / 10000; });
+            });
+            return out;
+        }
+        function normGallery(g) {
+            var out = { folderUrl: "", items: [] };
+            if (!g || typeof g !== "object") return out;
+            var fid = driveFolderId(clean(g.folderUrl, 300));
+            out.folderUrl = fid ? "https://drive.google.com/drive/folders/" + fid : "";
+            (Array.isArray(g.items) ? g.items : []).slice(0, 3000).forEach(function (it) {
+                if (!it || typeof it !== "object") return;
+                var id = /^[A-Za-z0-9_-]{10,80}$/.test(it.id || "") ? it.id : "";
+                var url = id ? "" : safeUrl(it.url);
+                if (!id && !url) return;
+                var ppl = (Array.isArray(it.people) ? it.people : []).map(function (n) { return parseInt(n, 10); })
+                    .filter(function (n, i, a) { return n > 0 && a.indexOf(n) === i; }).slice(0, 60);
+                out.items.push({
+                    id: id, url: url, title: clean(it.title, 160), album: clean(it.album, 80),
+                    date: clean(it.date != null ? it.date : it.year, 30), dateEst: !!it.dateEst, desc: clean(it.desc, 2000), people: ppl, boxes: cleanBoxes(it.boxes, ppl)
+                });
+            });
+            return out;
+        }
+        function loadRaw() {
+            if (lsGet(LS_ADMIN) === "1") {
+                var raw = lsGet(LS_DATA);
+                if (raw) {
+                    try {
+                        var d = JSON.parse(raw);
+                        if (d && Array.isArray(d.people)) { $("adminNote").hidden = false; return d; }
+                    } catch (e) {}
+                }
+            }
+            if (window.FAMILY_DATA && Array.isArray(window.FAMILY_DATA.people)) return window.FAMILY_DATA;
+            return {};
+        }
+        var raw = loadRaw();
+        var gallery = raw.gallery === undefined ? { folderUrl: DEFAULT_FOLDER_URL, items: [] } : normGallery(raw.gallery);
+        var folderId = driveFolderId(gallery.folderUrl);
+
+        /* ---------- osoby i kolory linii rodzinnych (takie same jak w drzewie) ---------- */
+        function hueAt(t) {
+            if (t < 0.5) {
+                var st = [[0, 204], [0.25, 188], [0.375, 112], [0.5, 78]];
+                for (var i = 1; i < st.length; i++) {
+                    if (t <= st[i][0]) return st[i - 1][1] + (st[i][1] - st[i - 1][1]) * (t - st[i - 1][0]) / (st[i][0] - st[i - 1][0]);
+                }
+            }
+            return (345 + 65 * ((t - 0.5) / 0.5)) % 360;
+        }
+        var rootId = parseInt(raw.rootId, 10) || 0;
+        var everyone = (Array.isArray(raw.people) ? raw.people : []).map(function (r) {
+            return { id: parseInt(r.id, 10) || 0, name: clean(r.name, 120) || "Bez nazwy", maiden: clean(r.maiden, 80), gender: r.gender, b: clean(r.b, 40), d: clean(r.d, 40), photo: typeof r.photo === "string" && /^data:image\//.test(r.photo) ? r.photo : "", fid: parseInt(r.fid, 10) || null, mid: parseInt(r.mid, 10) || null, t: null };
+        });
+        (function lineage() {
+            var byId = {};
+            everyone.forEach(function (p) { byId[p.id] = p; });
+            var root = byId[rootId];
+            if (root) {
+                (function walk(p, lo, hi, stack) {
+                    if (stack[p.id]) return;
+                    stack[p.id] = 1;
+                    var mid = (lo + hi) / 2;
+                    if (p.t == null) p.t = mid;
+                    if (p.fid && byId[p.fid]) walk(byId[p.fid], lo, mid, stack);
+                    if (p.mid && byId[p.mid]) walk(byId[p.mid], mid, hi, stack);
+                    delete stack[p.id];
+                })(root, 0, 1, {});
+            }
+            var partners = {};
+            function link(a, b) { (partners[a] = partners[a] || []).push(b); (partners[b] = partners[b] || []).push(a); }
+            everyone.forEach(function (p) { if (p.fid && p.mid) link(p.fid, p.mid); });
+            (raw.marriages || []).forEach(function (m) {
+                var a = parseInt(m.a, 10), b = parseInt(m.b, 10);
+                if (byId[a] && byId[b]) link(a, b);
+            });
+            var changed = true, guard = 0;
+            while (changed && guard++ < 60) {
+                changed = false;
+                everyone.forEach(function (p) {
+                    if (p.t != null) return;
+                    var f = p.fid && byId[p.fid], m = p.mid && byId[p.mid];
+                    var src = (f && f.t != null) ? f : ((m && m.t != null) ? m : null);
+                    if (src) { p.t = src.t; changed = true; return; }
+                    var ps = partners[p.id] || [];
+                    for (var i = 0; i < ps.length; i++) {
+                        var o = byId[ps[i]];
+                        if (o && o.t != null) { p.t = o.t; changed = true; return; }
+                    }
+                });
+            }
+        })();
+        var peopleById = {};
+        everyone.forEach(function (p) { peopleById[p.id] = p; });
+        function dotColor(p) {
+            if (p.id === rootId) return "#2d3544";
+            if (p.t == null) return "#aab2bf";
+            return "hsl(" + Math.round(hueAt(p.t)) + ",85%,52%)";
+        }
+
+        /* cztery linie rodzinne z wachlarza: 0 Tutejowie, 1 Hajdusowie, 2 Góreccy, 3 Balowie */
+        var FAMS = [
+            { key: 0, label: "Tutejowie", t: 0.125 },
+            { key: 1, label: "Hajdusowie", t: 0.375 },
+            { key: 2, label: "Góreccy", t: 0.625 },
+            { key: 3, label: "Balowie", t: 0.875 }
+        ];
+        function personLines(p) {
+            if (p.t == null) return [];
+            if (p.t === 0.5) return [0, 1, 2, 3];
+            if (p.t === 0.25) return [0, 1];
+            if (p.t === 0.75) return [2, 3];
+            return [Math.min(3, Math.max(0, Math.floor(p.t * 4)))];
+        }
+        function famColor(f) { return "hsl(" + Math.round(hueAt(f.t)) + ",85%,48%)"; }
+        function plFoto(n) {
+            var m10 = n % 10, m100 = n % 100;
+            if (n === 1) return "zdjęcie";
+            return (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) ? "zdjęcia" : "zdjęć";
+        }
+        function dateKey(s) {
+            s = String(s || "");
+            var m = /(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})/.exec(s);
+            if (m) return parseInt(m[3], 10) * 10000 + parseInt(m[2], 10) * 100 + parseInt(m[1], 10);
+            m = /(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/.exec(s);
+            if (m) return parseInt(m[1], 10) * 10000 + parseInt(m[2], 10) * 100 + parseInt(m[3], 10);
+            m = /(\d{1,2})[.\-\/](\d{4})/.exec(s);
+            if (m) return parseInt(m[2], 10) * 10000 + parseInt(m[1], 10) * 100;
+            m = /(1[5-9]\d\d|20\d\d)/.exec(s);                // także zakresy „1920-1924” → pierwszy rok
+            return m ? parseInt(m[1], 10) * 10000 : null;
+        }
+        function dateLabel(it) {
+            if (!it.date) return "";
+            if (!it.dateEst) return it.date;
+            var d = it.date;
+            if (/(1[5-9]\d\d|20\d\d)\s*[-–—]\s*(1[5-9]\d\d|20\d\d)/.test(d)) return d.replace(/\s*[-–—]\s*/, "–") + " (szacowane lata)";
+            if (/^\s*(1[5-9]\d\d|20\d\d)\s*$/.test(d)) return d + " (szacowany rok)";
+            return d + " (szacowana data)";
+        }
+        /* tylko osoby, które istnieją w drzewie */
+        var items = gallery.items.map(function (it) {
+            it.people = it.people.filter(function (id) { return peopleById[id]; });
+            it.names = it.people.map(function (id) { return peopleById[id].name; });
+            var lines = {};
+            it.people.forEach(function (id) { personLines(peopleById[id]).forEach(function (l) { lines[l] = 1; }); });
+            it.lines = Object.keys(lines).map(Number);
+            it.hay = fold([it.title, it.album, it.date, it.desc, it.names.join(" "), it.people.map(function (id) { return peopleById[id].maiden; }).join(" ")].join(" "));
+            return it;
+        });
+        function galUrl(it, w) { return it.id ? "https://drive.google.com/thumbnail?id=" + it.id + "&sz=w" + w : it.url; }
+        function galAlt(it, w) { return it.id ? "https://lh3.googleusercontent.com/d/" + it.id + "=w" + w : ""; }
+        function galTitle(it) { return it.title || "Zdjęcie"; }
+        function galMeta(it) { return [it.album, dateLabel(it)].filter(Boolean).join(" · "); }
+        function galImg(it, w) {
+            var img = document.createElement("img");
+            img.alt = galTitle(it); img.loading = "lazy"; img.decoding = "async"; img.referrerPolicy = "no-referrer";
+            img.addEventListener("error", function () {
+                var a = galAlt(it, w);
+                if (a && !img.getAttribute("data-alt")) { img.setAttribute("data-alt", "1"); img.src = a; }
+                else img.classList.add("broken");
+            });
+            img.src = galUrl(it, w);
+            return img;
+        }
+
+        /* ---------- filtry: album, osoba, wyszukiwanie, sortowanie ---------- */
+        var album = "", query = "", persons = [], famSel = {}, sortMode = "date-asc", shown = [];
+        function albumsOf() {
+            var seen = {}, list = [];
+            items.forEach(function (it) { var a = it.album || ""; if (seen[a] == null) { seen[a] = 0; list.push(a); } seen[a]++; });
+            list.sort(function (a, b) { if (!a) return 1; if (!b) return -1; return a.localeCompare(b, "pl"); });
+            return { list: list, counts: seen };
+        }
+        function renderChips() {
+            var box = $("chips"), al = albumsOf();
+            box.innerHTML = "";
+            if (al.list.length < 2 && !(al.list.length === 1 && al.list[0])) return;
+            function chip(label, value) {
+                var b = document.createElement("button");
+                b.type = "button";
+                b.className = "chip" + (album === value ? " active" : "");
+                b.textContent = label;
+                b.addEventListener("click", function () { album = value; renderChips(); renderGrid(); });
+                box.appendChild(b);
+            }
+            chip("Wszystkie (" + items.length + ")", "");
+            al.list.forEach(function (a) { chip((a || "Bez albumu") + " (" + al.counts[a] + ")", a || "\u0000"); });
+        }
+        /* ---------- tagi rodzin ---------- */
+        function renderTags() {
+            var box = $("tags");
+            box.innerHTML = "";
+            FAMS.forEach(function (f) {
+                var n = items.filter(function (it) { return it.lines.indexOf(f.key) !== -1; }).length;
+                var b = document.createElement("button");
+                b.type = "button";
+                b.className = "tag" + (famSel[f.key] ? " on" : "");
+                b.style.setProperty("--c", famColor(f));
+                b.setAttribute("aria-pressed", famSel[f.key] ? "true" : "false");
+                var l = document.createElement("span"); l.textContent = f.label;
+                var c = document.createElement("span"); c.className = "n"; c.textContent = n;
+                b.appendChild(l); b.appendChild(c);
+                b.addEventListener("click", function () { if (famSel[f.key]) delete famSel[f.key]; else famSel[f.key] = 1; renderTags(); renderGrid(); });
+                box.appendChild(b);
+            });
+        }
+        /* ---------- wyszukiwarka osób (taka sama jak w drzewie) ---------- */
+        var searchInput = $("q"), searchList = $("searchList"), searchX = $("searchX");
+        var sq = { q: "", results: [], active: -1, toks: [] };
+        var photoCount = {};
+        items.forEach(function (it) { it.people.forEach(function (id) { photoCount[id] = (photoCount[id] || 0) + 1; }); });
+        var searchable = everyone.filter(function (p) { return photoCount[p.id]; });
+        function lifeYears(p) {
+            function yr(s) { var m = /(1[0-9]\d\d|20\d\d)/.exec(s || ""); return m ? m[1] : ""; }
+            var b = yr(p.b), d = yr(p.d);
+            if (b && d) return b + "–" + d;
+            if (b) return "ur. " + b;
+            if (d) return "zm. " + d;
+            return "";
+        }
+        function initialsOf(name) {
+            var parts = name.replace(/^(Dr|Prof\.)\s+/, "").split(/\s+/);
+            return (parts[0].charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : "")).toUpperCase();
+        }
+        function searchPeople(q) {
+            var f = fold(q).trim();
+            var toks = f.split(/\s+/).filter(Boolean);
+            if (f.replace(/\s/g, "").length < 2) return [];
+            var out = [];
+            searchable.forEach(function (p) {
+                var words = fold(p.name + " " + (p.maiden || "")).split(/[^a-z0-9]+/).filter(Boolean);
+                var score = 0, ok = true;
+                for (var i = 0; i < toks.length && ok; i++) {
+                    var t = toks[i], best = -1;
+                    for (var j = 0; j < words.length; j++) {
+                        if (words[j] === t) best = Math.max(best, 3);
+                        else if (words[j].indexOf(t) === 0) best = Math.max(best, 2);
+                    }
+                    if (best < 0) ok = false; else score += best;
+                }
+                if (ok) out.push({ p: p, score: score });
+            });
+            out.sort(function (a, b) { return (b.score - a.score) || (photoCount[b.p.id] - photoCount[a.p.id]) || a.p.name.localeCompare(b.p.name, "pl"); });
+            return out;
+        }
+        function highlightInto(node, text, toks) {
+            var f = fold(text);
+            if (f.length !== text.length) { node.textContent = text; return; }
+            var marks = [];
+            toks.forEach(function (t) {
+                var re = new RegExp("(^|[^a-z0-9])" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+                var m = re.exec(f), idx = m ? m.index + m[1].length : f.indexOf(t);
+                if (idx >= 0) marks.push([idx, idx + t.length]);
+            });
+            marks.sort(function (a, b) { return a[0] - b[0]; });
+            var merged = [];
+            marks.forEach(function (r) {
+                var last = merged[merged.length - 1];
+                if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]); else merged.push(r.slice());
+            });
+            var pos = 0;
+            merged.forEach(function (r) {
+                if (r[0] > pos) node.appendChild(document.createTextNode(text.slice(pos, r[0])));
+                var mk = document.createElement("mark"); mk.textContent = text.slice(r[0], r[1]); node.appendChild(mk);
+                pos = r[1];
+            });
+            if (pos < text.length) node.appendChild(document.createTextNode(text.slice(pos)));
+        }
+        function mk(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+        function openSearchList() { searchList.hidden = false; searchInput.setAttribute("aria-expanded", "true"); }
+        function closeSearchList() { searchList.hidden = true; searchInput.setAttribute("aria-expanded", "false"); }
+        function setSearchActive(i, scroll) {
+            sq.active = i;
+            Array.prototype.forEach.call(searchList.querySelectorAll(".sr-item"), function (it) {
+                var on = Number(it.getAttribute("data-i")) === i;
+                it.classList.toggle("active", on);
+                it.setAttribute("aria-selected", on ? "true" : "false");
+                if (on) { searchInput.setAttribute("aria-activedescendant", it.id); if (scroll) it.scrollIntoView({ block: "nearest" }); }
+            });
+        }
+        function plOsoba(n) {
+            var m10 = n % 10, m100 = n % 100;
+            if (n === 1) return "osoba";
+            return (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) ? "osoby" : "osób";
+        }
+        function renderSearchList() {
+            var q = searchInput.value.trim();
+            searchList.innerHTML = "";
+            if (!q) { closeSearchList(); return; }
+            var n = sq.results.length;
+            if (fold(q).replace(/\s/g, "").length < 2) {
+                searchList.appendChild(mk("div", "sr-empty", "Wpisz co najmniej 2 litery."));
+            } else if (!n) {
+                searchList.appendChild(mk("div", "sr-empty", "Brak osób ze zdjęć pasujących do „" + q + "”. Wpisany tekst nadal filtruje tytuły i opisy."));
+            } else {
+                var shownN = Math.min(n, 50);
+                var head = mk("div", "sr-head");
+                head.appendChild(mk("span", null, "Znaleziono: " + n + " " + plOsoba(n) + (n > shownN ? " (pokazano " + shownN + ")" : "") + " · wybierz, by pokazać zdjęcia"));
+                searchList.appendChild(head);
+                sq.results.slice(0, shownN).forEach(function (r, i) {
+                    var p = r.p;
+                    var it = mk("div", "sr-item" + (i === sq.active ? " active" : ""));
+                    it.id = "sr-" + i;
+                    it.setAttribute("role", "option");
+                    it.setAttribute("data-i", i);
+                    var av = mk("div", "sr-av");
+                    av.style.setProperty("--c", dotColor(p));
+                    if (p.photo) av.style.backgroundImage = 'url("' + p.photo.replace(/"/g, "%22") + '")';
+                    else {
+                        av.textContent = initialsOf(p.name);
+                        av.style.background = p.id === rootId ? "#2d3544" : "#e4e7ec";
+                        av.style.color = p.id === rootId ? "#fff" : "#232a36";
+                    }
+                    var t = mk("div", "sr-t");
+                    var nm = mk("span", "sr-n");
+                    highlightInto(nm, p.name, sq.toks);
+                    t.appendChild(nm);
+                    t.appendChild(mk("span", "sr-s", [lifeYears(p), p.maiden ? "z d. " + p.maiden : ""].filter(Boolean).join(" · ")));
+                    it.appendChild(av); it.appendChild(t);
+                    var c = photoCount[p.id];
+                    it.appendChild(mk("span", "sr-tag", c + " " + plFoto(c)));
+                    searchList.appendChild(it);
+                });
+            }
+            openSearchList();
+        }
+        function runSearch() {
+            sq.q = searchInput.value;
+            sq.results = searchPeople(sq.q);
+            sq.toks = fold(sq.q).split(/\s+/).filter(Boolean);
+            sq.active = sq.results.length ? 0 : -1;
+            searchX.hidden = !sq.q;
+            query = sq.q.trim();                               // wpisany tekst filtruje też tytuły i opisy
+            renderSearchList();
+            renderGrid();
+        }
+        function clearSearch() { searchInput.value = ""; runSearch(); closeSearchList(); }
+        function chooseResult(i) {
+            var r = sq.results[i];
+            if (!r) return;
+            if (persons.indexOf(r.p.id) === -1) persons.push(r.p.id);
+            clearSearch();
+            searchInput.blur();
+        }
+        searchInput.addEventListener("input", runSearch);
+        searchInput.addEventListener("focus", function () { if (searchInput.value.trim()) openSearchList(); });
+        searchInput.addEventListener("keydown", function (e) {
+            var n = Math.min(sq.results.length, 50);
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if (searchList.hidden && searchInput.value.trim()) openSearchList();
+                if (n) setSearchActive((sq.active + 1) % n, true);
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if (n) setSearchActive((sq.active - 1 + n) % n, true);
+            } else if (e.key === "Enter") {
+                if (n && sq.active >= 0) { e.preventDefault(); chooseResult(sq.active); }
+            } else if (e.key === "Escape") {
+                if (!searchList.hidden) { e.preventDefault(); closeSearchList(); }
+                else if (searchInput.value) clearSearch();
+            }
+        });
+        searchList.addEventListener("mousedown", function (e) { e.preventDefault(); });
+        searchList.addEventListener("click", function (e) {
+            var it = e.target.closest(".sr-item");
+            if (it) chooseResult(Number(it.getAttribute("data-i")));
+        });
+        searchList.addEventListener("mousemove", function (e) {
+            var it = e.target.closest(".sr-item");
+            if (it) { var i = Number(it.getAttribute("data-i")); if (i !== sq.active) setSearchActive(i, false); }
+        });
+        searchX.addEventListener("click", function () { clearSearch(); searchInput.focus(); });
+        document.addEventListener("click", function (e) { if (!e.target.closest("#search")) closeSearchList(); });
+
+        /* ---------- aktywne filtry (osoby) ---------- */
+        function renderActive() {
+            var box = $("active");
+            box.innerHTML = "";
+            var any = persons.length || Object.keys(famSel).length || album;
+            box.hidden = !any;
+            if (!any) return;
+            persons.forEach(function (id) {
+                var p = peopleById[id];
+                var c = mk("span", "pf", p.name);
+                c.style.setProperty("--c", dotColor(p));
+                var x = mk("button", null, "×");
+                x.type = "button"; x.setAttribute("aria-label", "Usuń filtr: " + p.name);
+                x.addEventListener("click", function () { persons = persons.filter(function (k) { return k !== id; }); renderGrid(); });
+                c.appendChild(x);
+                box.appendChild(c);
+            });
+            var clr = mk("button", "linkbtn", "Wyczyść filtry");
+            clr.type = "button";
+            clr.addEventListener("click", function () { persons = []; famSel = {}; album = ""; renderTags(); renderChips(); renderGrid(); });
+            box.appendChild(clr);
+        }
+        function cmp(mode) {
+            return function (a, b) {
+                var ka = dateKey(a.date), kb = dateKey(b.date);
+                function byDate(dir) {
+                    if (ka == null && kb == null) return 0;
+                    if (ka == null) return 1;
+                    if (kb == null) return -1;
+                    return (ka - kb) * dir;
+                }
+                if (mode === "title") return (a.title || "\uffff").localeCompare(b.title || "\uffff", "pl") || byDate(1);
+                if (mode === "album") return (a.album || "\uffff").localeCompare(b.album || "\uffff", "pl") || byDate(1) || (a.title || "").localeCompare(b.title || "", "pl");
+                return byDate(mode === "date-desc" ? -1 : 1) || (a.album + a.title).localeCompare(b.album + b.title, "pl");
+            };
+        }
+        function renderGrid() {
+            var q = fold(query);
+            var famKeys = Object.keys(famSel).map(Number);
+            shown = items.filter(function (it) {
+                var okAlbum = !album || (album === "\u0000" ? !it.album : it.album === album);
+                var okPerson = persons.every(function (id) { return it.people.indexOf(id) !== -1; });
+                var okFam = !famKeys.length || famKeys.some(function (k) { return it.lines.indexOf(k) !== -1; });
+                return okAlbum && okPerson && okFam && (!q || it.hay.indexOf(q) !== -1);
+            }).sort(cmp(sortMode));
+            renderActive();
+            $("none").hidden = !(items.length && !shown.length);
+            var grid = $("grid");
+            grid.innerHTML = "";
+            $("count").textContent = items.length ? shown.length + " " + plFoto(shown.length) + (shown.length !== items.length ? " (z " + items.length + ")" : "") : "";
+            shown.forEach(function (it, i) {
+                var card = document.createElement("button");
+                card.type = "button"; card.className = "g-card"; card.setAttribute("data-i", i);
+                var ph = document.createElement("div"); ph.className = "ph"; ph.appendChild(galImg(it, 500));
+                var cap = document.createElement("div"); cap.className = "cap";
+                var t = document.createElement("p"); t.className = "t"; t.textContent = galTitle(it);
+                var m = document.createElement("p"); m.className = "m"; m.textContent = galMeta(it);
+                var p = document.createElement("p"); p.className = "p";
+                p.textContent = it.names.length ? it.names.slice(0, 3).join(", ") + (it.names.length > 3 ? " +" + (it.names.length - 3) : "") : "";
+                cap.appendChild(t); cap.appendChild(m); cap.appendChild(p);
+                card.appendChild(ph); card.appendChild(cap);
+                grid.appendChild(card);
+            });
+        }
+        $("grid").addEventListener("click", function (e) {
+            var c = e.target.closest(".g-card");
+            if (c) lbOpen(shown, Number(c.getAttribute("data-i")), c);
+        });
+        $("sortSel").addEventListener("change", function () { sortMode = this.value; renderGrid(); });
+
+        if (folderId) { $("folderLink").href = "https://drive.google.com/drive/folders/" + folderId; $("folderLink").hidden = false; }
+        if (items.length) {
+            var wantedPerson = parseInt((/[?&]osoba=(\d+)/.exec(location.search) || [])[1], 10);
+            if (wantedPerson && peopleById[wantedPerson]) persons = [wantedPerson];
+            renderChips();
+            renderTags();
+            renderGrid();
+        } else {
+            $("side").hidden = true;
+            $("layout").style.display = "block";
+            $("filters").hidden = true;
+            $("tools").hidden = true;
+            if (folderId) {
+                $("fallback").hidden = false;
+                $("embed").src = "https://drive.google.com/embeddedfolderview?id=" + folderId + "#grid";
+                $("tools").hidden = false;
+                $("search").hidden = true;
+            } else {
+                $("empty").hidden = false;
+            }
+        }
+
+        /* ---------- podgląd powiększony z panelem opisu ---------- */
+        var lbBox = $("lb"), lbState = { list: [], i: 0, opener: null };
+        function lbShow(i) {
+            var n = lbState.list.length;
+            if (!n) return;
+            i = (i + n) % n;
+            lbState.i = i;
+            var it = lbState.list[i], img = $("lbImg");
+            img.removeAttribute("data-alt");
+            img.classList.add("loading");
+            img.onload = function () { img.classList.remove("loading"); if (lbSel) lbDrawFrame(); };
+            img.onerror = function () {
+                var a = galAlt(it, 2000);
+                if (a && !img.getAttribute("data-alt")) { img.setAttribute("data-alt", "1"); img.src = a; }
+                else img.classList.remove("loading");
+            };
+            img.alt = galTitle(it);
+            img.src = galUrl(it, 2000);
+
+            $("lbAlbum").textContent = it.album || "";
+            $("lbAlbum").hidden = !it.album;
+            $("lbTitle").textContent = it.title || "Zdjęcie bez nazwy";
+            $("lbDate").textContent = dateLabel(it);
+            $("lbDate").hidden = !it.date;
+            $("lbDesc").textContent = it.desc || "";
+            $("lbDescBox").hidden = !it.desc;
+            var box = $("lbPeople");
+            box.innerHTML = "";
+            it.people.forEach(function (id) {
+                var p = peopleById[id];
+                var a = document.createElement("button");
+                a.type = "button";
+                a.className = "lb-chip" + (it.boxes && it.boxes[id] ? " has-box" : "");
+                a.textContent = p.name;
+                a.setAttribute("data-id", id);
+                a.setAttribute("aria-pressed", "false");
+                a.title = "Pokaż osobę na zdjęciu";
+                a.style.setProperty("--c", dotColor(p));
+                box.appendChild(a);
+            });
+            $("lbPeopleBox").hidden = !it.people.length;
+            lbSel = 0;
+            lbDrawFrame();
+            $("lbSideIn").scrollTop = 0;
+            var open = $("lbOpen");
+            open.href = it.id ? "https://drive.google.com/file/d/" + it.id + "/view" : it.url;
+            open.textContent = it.id ? "Otwórz w Dysku Google ↗" : "Otwórz oryginał ↗";
+            $("lbCount").textContent = (i + 1) + " / " + n;
+            $("lbPrev").hidden = $("lbNext").hidden = n < 2;
+            if (n > 1) [i + 1, i - 1].forEach(function (k) { var o = lbState.list[(k + n) % n]; if (o) { var pre = new Image(); pre.referrerPolicy = "no-referrer"; pre.src = galUrl(o, 2000); } });
+        }
+        function placeLabel(box, stage, lowAt) {              // etykieta ramki: środek etykiety = środek górnej krawędzi ramki, ale nie wychodzi poza zdjęcie
+            var sp = box.querySelector("span");
+            var sw = stage.clientWidth;
+            if (!sp || !sw) return;
+            sp.style.maxWidth = Math.max(40, sw - 8) + "px";
+            var low = box.offsetTop < sp.offsetHeight + 8;
+            box.classList.toggle(lowAt, low);
+            var lw = sp.offsetWidth, abs = box.offsetLeft + box.offsetWidth / 2 - lw / 2;
+            abs = Math.max(4, Math.min(sw - lw - 4, abs));
+            sp.style.left = (abs - box.offsetLeft - box.clientLeft) + "px";
+        }
+        var lbSel = 0;
+        function lbDrawFrame() {                              // zaznaczona osoba: ramka na zdjęciu + kafelek „Pokaż osobę w drzewie”
+            var it = lbState.list[lbState.i] || {}, fr = $("lbFrame");
+            Array.prototype.forEach.call($("lbPeople").querySelectorAll(".lb-chip"), function (c) {
+                var on = Number(c.getAttribute("data-id")) === lbSel;
+                c.classList.toggle("on", on);
+                c.setAttribute("aria-pressed", on ? "true" : "false");
+            });
+            fr.hidden = true; $("lbNote").hidden = true; $("lbTree").hidden = true;
+            $("lbHint").hidden = !!lbSel;
+            var p = lbSel && peopleById[lbSel];
+            if (!p) return;
+            $("lbTreeName").textContent = "– " + p.name;
+            $("lbTree").href = "index.html?osoba=" + p.id + "#drzewo";
+            var r = it.boxes && it.boxes[lbSel];
+            $("lbTree").hidden = false;
+            if (!r) { $("lbNote").hidden = false; return; }
+            fr.style.left = (r[0] * 100) + "%"; fr.style.top = (r[1] * 100) + "%";
+            fr.style.width = (r[2] * 100) + "%"; fr.style.height = (r[3] * 100) + "%";
+            fr.style.setProperty("--c", dotColor(p));
+            $("lbFrameName").textContent = p.name;
+            fr.hidden = false;
+            placeLabel(fr, $("lbStage"), "low");
+        }
+        window.addEventListener("resize", function () { if (lbSel && !lbBox.hidden) lbDrawFrame(); });
+        $("lbPeople").addEventListener("click", function (e) {
+            var b = e.target.closest(".lb-chip");
+            if (!b) return;
+            var id = Number(b.getAttribute("data-id"));
+            lbSel = lbSel === id ? 0 : id;
+            lbDrawFrame();
+        });
+        function lbOpen(list, i, opener) {
+            lbState.list = list; lbState.opener = opener || null;
+            lbBox.hidden = false;
+            document.body.classList.add("lb-open");
+            lbShow(i);
+            $("lbX").focus();
+        }
+        function lbClose() {
+            lbBox.hidden = true;
+            document.body.classList.remove("lb-open");
+            $("lbImg").removeAttribute("src");
+            if (lbState.opener && lbState.opener.focus) { try { lbState.opener.focus(); } catch (e) {} }
+        }
+        $("lbX").addEventListener("click", lbClose);
+        $("lbPrev").addEventListener("click", function () { lbShow(lbState.i - 1); });
+        $("lbNext").addEventListener("click", function () { lbShow(lbState.i + 1); });
+        lbBox.addEventListener("click", function (e) {
+            if (e.target === lbBox || e.target.classList.contains("lb-main") || e.target.classList.contains("lb-fig")) lbClose();
+        });
+        document.addEventListener("keydown", function (e) {
+            if (lbBox.hidden) return;
+            if (e.key === "Escape") lbClose();
+            else if (e.key === "ArrowLeft") { e.preventDefault(); lbShow(lbState.i - 1); }
+            else if (e.key === "ArrowRight") { e.preventDefault(); lbShow(lbState.i + 1); }
+        });
+        var lbTouch = null;
+        $("lbMain").addEventListener("touchstart", function (e) { lbTouch = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+        $("lbMain").addEventListener("touchend", function (e) {
+            if (lbTouch == null) return;
+            var dx = e.changedTouches[0].clientX - lbTouch;
+            if (Math.abs(dx) > 50) lbShow(lbState.i + (dx < 0 ? 1 : -1));
+            lbTouch = null;
+        }, { passive: true });
+    })();
+    </script>
+
+    <script>
+    /* Efekt paralaksy: tło przesuwa się wolniej niż treść strony.
+       PREDKOSC: 0 = tło stoi w miejscu, 1 = tło przewija się tak samo szybko jak treść.
+       Przy ustawieniu systemowym „ogranicz ruch” (lub wyłączonym JavaScript) tło po prostu przewija się razem ze stroną. */
+    (function () {
+        var PREDKOSC = 0.4;
+        var layer = document.getElementById("parallaxBg");
+        if (!layer || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+        var root = document.documentElement, maxScroll = 0, ticking = false;
+
+        function update() {
+            ticking = false;
+            var y = Math.min(Math.max(window.pageYOffset || 0, 0), maxScroll);
+            layer.style.transform = "translate3d(0," + (-y * PREDKOSC).toFixed(1) + "px,0)";
+        }
+        function measure() {
+            var vh = window.innerHeight;
+            maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - vh);
+            layer.style.height = Math.ceil(vh + maxScroll * PREDKOSC) + "px";   // warstwa pokrywa cały zakres przewijania
+            update();
+        }
+        function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+
+        root.classList.add("parallax-on");
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", measure);
+        window.addEventListener("load", measure);
+        if (window.ResizeObserver) new ResizeObserver(measure).observe(document.body);
+        measure();
+    })();
+    </script>
+
+</body>
+</html>
