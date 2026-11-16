@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O projekcie – Tutejowie</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#232a36">
+
+    <style>
+        :root {
+            --ink: #232a36;
+            --muted: #667085;
+            --line: #e4e7ec;
+            --bg: #fbfbfa;
+            --card: #ffffff;
+            --accent: #d92b57;
+            --accent-dark: #b81f47;
+            --spectrum: linear-gradient(90deg, #0aa5cf 0%, #27c9b8 17%, #6fdc6f 33%, #b6e82e 49%, #ff3d6e 51%, #ff7a45 72%, #ffd43b 100%);
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        /* ---------- Paralaksa: tło przesuwa się wolniej niż treść (prędkość ustawiana w skrypcie na dole strony) ---------- */
+        #parallaxBg {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;                              /* wysokość ustawia skrypt */
+            z-index: -1;
+            pointer-events: none;
+            background: url("t%C5%82o.png") center top / cover no-repeat;   /* plik tło.png obok index.html */
+            will-change: transform;
+        }
+        html.parallax-on #parallaxBg { display: block; }
+        html.parallax-on body { background-image: none; }   /* przy włączonej paralaksie tło rysuje warstwa powyżej */
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background-color: #f1efea;                 /* kolor zapasowy, gdyby obrazek się nie wczytał */
+            background-image: url("t%C5%82o.png");      /* plik tło.png w tym samym folderze co index.html */
+            background-repeat: no-repeat;
+            background-position: center top;
+            background-size: cover;
+            background-attachment: scroll;             /* tło przewija się razem ze stroną */
+            min-height: 100vh;
+            color: var(--ink);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        header { background: var(--ink); color: #fff; text-align: center; padding: 2.5rem 1rem 2.2rem; }
+        header h1 { margin: 0; font-size: 2.4rem; font-weight: normal; letter-spacing: 1px; }
+        header h1 a { color: inherit; text-decoration: none; }
+        header p { margin: 0.5rem 0 0; font-style: italic; opacity: 0.8; }
+        .spectrum { height: 6px; background: var(--spectrum); }
+        @media (max-width: 600px) { header h1 { font-size: 1.7rem; } }
+
+        nav { background: #fff; border-bottom: 1px solid var(--line); text-align: center; padding: 0.8rem; position: sticky; top: 0; z-index: 100; }
+        nav a {
+            color: var(--ink);
+            text-decoration: none;
+            margin: 0 14px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            padding-bottom: 3px;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        nav a:hover, nav a.current { border-bottom-color: var(--accent); }
+
+        .container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        section { background: var(--card); padding: 2rem; margin-bottom: 2rem; border-radius: 10px; border: 1px solid var(--line); }
+        h2 { color: var(--ink); margin: 0 0 1rem; font-weight: normal; font-size: 1.7rem; }
+        h2::after { content: ""; display: block; height: 3px; width: 72px; margin-top: 0.5rem; border-radius: 2px; background: var(--spectrum); }
+
+
+        /* ---------- o projekcie: zwijane bloki ---------- */
+        .container { max-width: 860px; }
+        .acc-tools { display: flex; justify-content: flex-end; margin: 0 0 0.8rem; }
+        .acc-tools button { font: 0.82rem sans-serif; padding: 0.4rem 0.9rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; color: var(--ink); cursor: pointer; }
+        .acc-tools button:hover { border-color: var(--accent); color: var(--accent-dark); }
+        .acc { background: var(--card); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 0.8rem; overflow: hidden; }
+        .acc summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.05rem 1.4rem; cursor: pointer; list-style: none; font-size: 1.2rem; color: var(--ink); }
+        .acc summary::-webkit-details-marker { display: none; }
+        .acc summary > span::after { content: ""; display: block; height: 3px; width: 72px; margin-top: 0.5rem; border-radius: 2px; background: var(--spectrum); }
+        .acc summary:hover { background: #fafafa; }
+        .acc summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+        .acc .chev { flex: none; color: var(--muted); transition: transform 0.2s; }
+        .acc[open] .chev { transform: rotate(180deg); }
+        .acc[open] summary { border-bottom: 1px solid var(--line); }
+        .acc-body { padding: 1.1rem 1.4rem 1.3rem; }
+        .acc-body p { margin: 0 0 1rem; }
+        .acc-body p:last-child { margin-bottom: 0; }
+        .acc-body h3 { margin: 1.4rem 0 0.7rem; font-weight: normal; font-size: 1.1rem; color: var(--ink); }
+        @media (max-width: 600px) { .acc summary { padding: 0.9rem 1rem; font-size: 1.05rem; } .acc-body { padding: 1rem; } }
+
+        footer { text-align: center; padding: 2rem; font-size: 0.85rem; color: #777; font-family: sans-serif; }
+        footer p { display: inline-block; margin: 0; padding: 0.35rem 1.1rem; background: rgba(255, 255, 255, 0.88); border-radius: 999px; }
+        @media (max-width: 600px) { section { padding: 1.4rem 1.1rem; } }
+    </style>
+</head>
+<body>
+    <div id="parallaxBg" aria-hidden="true"></div>
+
+    <header>
+        <h1><a href="index.html">Tutejowie</a></h1>
+        <p>Archiwum Genealogiczne, Biografie i Historia Rodu</p>
+    </header>
+    <div class="spectrum"></div>
+
+    <nav>
+        <a href="index.html">Strona główna</a>
+        <a href="index.html?widok=drzewo">Drzewo genealogiczne</a>
+        <a href="biografie.html">Biografie</a>
+        <a href="galeria.html">Galeria</a>
+        <a href="projekt.html" class="current">O projekcie</a>
+        <a href="kontakt.html">Kontakt</a>
+    </nav>
+
+    <div class="container">
+        <div class="acc-tools"><button type="button" id="accAll">Rozwiń wszystkie</button></div>
+            <details class="acc" id="s1">
+                <summary><span>Dlaczego to robię?</span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="acc-body">
+                    <p>Genealogia jest jedną z moich największych pasji. Tematem zacząłem interesować się w listopadzie 2024, kiedy w trakcie święta zmarłych, chodziłem z bratem po cmentarzu komunalnym w Wieliczce i szukaliśmy nagrobków innych Tutejów - jak się później okazało, większość trafiła do mojego drzewa.  Gdy zlokalizowałem grób moich prapradziadków, Ignacego i Julii Tutei – pomnika, o którym nigdy nic nie słyszałem, zacząłem zadawać sobie pytania "No dobra ale kto był przed nim? Ile jeszcze rodzinnych grobów jest na tym cmentarzu, o których nic nie wiem?".</p>
+                    <p>Zacząłem, od przeglądania istniejących już opracowań genealogicznych, drzewa rodzinne, który opracował inny badacz, a znajdowała się w nich moja rodzina. Natomiast szybko wyczerpałem źródło, przerzuciłem się więc na internetowe bazy, zawierające zindeksowane akta narodzin, małżeństw i zgonów. Cyfrowy format pozwolił szybko znajdować informację - wybierać parafię, sortować dokumentację przez imię czy nazwisko, czy wybrać sobie dogodny zakres lat – moje drzewo szybko rosło a przodkowie piętrzyli się nade mną. Natomiast bazy – nie były kompletne, odkryłem, więc, że można znaleźć skany ksiąg metrykalnych, i samemu szukać informacji. Tak mijały miesiące, a temat nigdy mi się nie nudził - zawsze było coś do opracowania a im dalej w las – tym projekt był dalej od skończenia.  W końcu sam dołączyłem do grona osób indeksujących - godzinami wprowadzałem informację z księgi metrykalnej z Łoniowej do tabelki w excelu. Chociaż czynność może się wydawać do oporu żmudna i nudna, koszmar urzędnika w dodatku charytatywnie - dla mnie taka nie była. Interesowała mnie każda strona, a coraz większa ilość indeksów, mnie tylko napędzała.</p>
+                    <p>Przeglądając księgi metrykalne, poczułem się jak Hernán Cortés przeczesujące dzikie, nieodkryte lądy ameryki północnej - z każdą kartką odkrywałem historię, której nikt nigdy nie spisał, o której każdy zdążył już zapomnieć - a czułem, że ta historia jest w jakiś sposób ze mną związana. Po naszych przodkach, którzy kiedyś chodzili po tej ziemi – rodzili się, dorastali, poznawali znajomych, z którymi się śmiali i kłócili, prowadzili życie - każde różne od innego - pozostał tylko okradziony z emocji – pusty metrykalny wpis. Ich domów już tutaj nie ma – nie został nawet kamień, ziemia nawet jak należała do nich - trafiła w obce ręce lub do osób, które nie mają pojęcia o ich istnieniu. Nie została żadna fotografia, pamiątka a miejsce, w którym mieszkali, jest już pewnie nie do poznania. Jedyne realne świadectwo ich egzystencji, namacalny dowód, że kiedyś tutaj byli – to MY – ich potomkowie.</p>
+                    <p>Początkowo nie umiałem odpowiedzieć, dlaczego temat mnie interesował do tego stopnia, że spędzałem cały wolny dzień na gapieniu się w ekran i przeglądaniu pożółkłych stron ksiąg metrykalnych. Ten bodziec to nie zwykła ciekawość, kto nosił takie samo nazwisko jak ja – ten brakujący element układanki - ta rzecz, przez która spędziłem setki godzin nad tym projektem, powodem, dlaczego pasja przyjęła wręcz wymiar obsesji – to KREW.</p>
+                </div>
+            </details>
+            <details class="acc" id="s2">
+                <summary><span>Prywatność strony – ochrona danych osób żyjących</span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="acc-body">
+                    <p>Dane osób żyjących (imiona, nazwiska, daty urodzenia, relacje rodzinne) są w pełni ukryte i zabezpieczone.</p>
+                    <p><strong>Brak widoczności w wyszukiwarkach (Google, Bing itp.):</strong> Żadna postronna osoba nie trafi na tę stronę, wpisując w wyszukiwarkę Twoje imię i nazwisko. Dane osób żyjących są zaszyfrowane i nie występują na serwerze w formie jawnego tekstu, więc roboty indeksujące Google po prostu ich nie widzą i nie podpowiadają w wynikach wyszukiwania.</p>
+                    <p><strong>Szyfrowanie po stronie przeglądarki (AES-256):</strong> Wszystkie wrażliwe dane dotyczące żyjących członków rodziny są zaszyfrowane silnym algorytmem (klasy wojskowej AES-256). Oznacza to, że pliki znajdujące się na serwerze zawierają jedynie losowy ciąg znaków, niemożliwy do odczytania bez odpowiedniego klucza.</p>
+                    <p><strong>Dostęp tylko dla rodziny:</strong> Odszyfrowanie danych następuje lokalnie, na Twoim urządzeniu (w przeglądarce), dopiero po wpisaniu prawidłowego hasła dostępowego, które przekazuję wyłącznie członkom rodziny. Bez tego hasła dane są bezużyteczną mozaiką znaków.</p>
+                </div>
+            </details>
+            <details class="acc" id="s3">
+                <summary><span>Wykorzystanie AI w projekcie</span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="acc-body">
+                    <p>Oczywiście sama strona (kodowanie w HTML i JavaScript) powstała przy wsparciu sztucznej inteligencji. AI wykorzystywałem również do transkrypcji trudnych, rękopiśmiennych tekstów – szczególnie tych pisanych cyrylicą – a także do szlifowania stylistyki biografii, wspomagania researchu czy po prostu do... negowania moich własnych hipotez badawczych, by ostatecznie upewnić się, czy mają one sens.</p>
+                    <p>Osobiście uważam, że w mądrym korzystaniu z technologii nie ma nic złego. Oczywiście sztucznej inteligencji trzeba stale patrzeć na ręce i samemu weryfikować źródła, ale z jej pomocą praca idzie znacznie szybciej i po prostu skuteczniej. Osoby chełpiące się, że zrealizowały podobny projekt całkowicie bez użycia AI, są w moich oczach jak pańszczyźniany chłop, który chwali się, że skosił całe pole sierpem, a nie kosą.</p>
+                    <p>Z drugiej strony – używanie AI do bezmyślnego „ulepszania” archiwalnych zdjęć (co często niszczy ich historyczną autentyczność) albo ślepe ufanie wygenerowanym informacjom bez sprawdzania metryk to druga strona medalu i po prostu skrajna nieodpowiedzialność. Technologia ma wspierać genealoga, a nie go zastępować.</p>
+                    <h3>Z jakich narzędzi korzystałem przy pracach?</h3>
+                    <p><strong>Claude (Anthropic)</strong> – niezastąpiony przy tworzeniu logicznych struktur, pisaniu zaawansowanych skryptów (m.in. bezkompromisowego szyfrowania danych osób żyjących AES-256-GCM) oraz przy wymagającym kodowaniu i układaniu mechanizmów strony.</p>
+                    <p><strong>Gemini (Google)</strong> – mój stały „myślowy partner” do analizy i transkrypcji trudnych materiałów archiwalnych, podważania teorii badawczych, szlifowania narracji w biografiach oraz codziennej pracy nad tekstem i zawartością projektu.</p>
+                </div>
+            </details>
+            <details class="acc" id="s4">
+                <summary><span>Zasady pisania biografii</span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="acc-body">
+                    <p>Jestem autorem wszystkich tekstów biograficznych zamieszczonych na stronie. Tworząc je, starałem się uważnie wysłuchać relacji każdego z członków rodziny, ale to na mnie spoczywała ostateczna odpowiedzialność za to, co znajdzie się w końcowej treści.</p>
+                    <p>Przyjąłem przy tym bezkompromisową zasadę: do każdego życiorysu podchodzę z krytycyzmem i szacunkiem do prawdy. Z drugiej strony – opisuję własną rodzinę. Musiałem więc umieć postawić się w sytuacjach moich krewnych i w trudnych lub kontrowersyjnych momentach zawsze dodawać odpowiedni kontekst historyczny. To, co z dzisiejszej perspektywy może wydawać się nieodpowiednie, kilkadziesiąt czy sto lat temu mogło być po prostu normą społeczną. Kierowałem się myślą, by opisać wszystko, co udało się ustalić – łącznie z trudnymi fragmentami. Być może za kilkadziesiąt lat okaże się, że nie ma w nich już nic szokującego.</p>
+                    <p>Cenzurowanie biografii przodków z obawy, że „coś jest nieodpowiednie” albo że „o tym lepiej nie wspominać na stronie”, uważam za błąd. Przemilczając ich potknięcia i wypaczając ich obraz w naszej pamięci – jak mamy nauczyć się nie popełniać tych samych błędów?</p>
+                    <p>Moim celem nie jest ani tworzenie podniosłych hagiografii, ani szukanie sensacji na siłę. Chodzi o wyważony kompromis i odpowiedź na jedno proste pytanie: „Jak było naprawdę?”.</p>
+                    <p>Wielokrotnie wsłuchiwałem się w rodzinne legendy, ubarwiane z każdym kolejnym dziesięcioleciem. Przesadne opowieści o przedwojennych generałach, szlacheckich herbach czy ucieczkach z transportów w stylu amerykańskiego westernu bywają chwytliwe, ale rzadko mają cokolwiek wspólnego z faktami. Prawda jest dla mnie najważniejsza – dlatego po wysłuchaniu najbardziej barwnych przekazów ustnych często musiałem wylać na własną głowę kubeł zimnej wody i zderzyć je z dokumentami. Nie każdy życiorys był idealny, nie każdy był niezwykle barwny – ale nie taki jest cel historii.</p>
+                </div>
+            </details>
+            <details class="acc" id="s5">
+                <summary><span>Skąd pochodzą dane archiwalne?</span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="acc-body">
+                    <p>Udokumentowana linia przodków sięga w niektórych gałęziach do 10. pokolenia wstecz – czyli obejmuje niemal 300 lat historii. Żadna z tych informacji nie powstała z domysłów.</p>
+                    <p>Dane pochodzą z ksiąg metrykalnych – dawnych odpowiedników Urzędu Stanu Cywilnego – rejestrujących akta urodzeń, małżeństw i zgonów. Prowadzone przez parafialnych proboszczów spisy spisywano najczęściej po łacinie, po polsku oraz po rosyjsku lub niemiecku (w zależności od zaboru i epoki).</p>
+                    <p>Praca nad drzewem nie wymagała stałych podróży po parafiach. Korzystałem głównie ze zdigitalizowanych skanów oraz ogólnodostępnych baz indeksów genealogicznych, takich jak Geneteka, Poznań Project czy BaSIA. Odnajdywanie kolejnych ogniw często wymagało sporej dozy kreatywności i detektywistycznego zacięcia – zwłaszcza gdy przodkowie zmieniali parafie lub gdy ciągłość ksiąg była przerwana.</p>
+                </div>
+            </details>
+            <details class="acc" id="s6">
+                <summary><span>Zdjęcia, biografie i archiwalia</span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="acc-body">
+                    <p>Przy tworzeniu biografii oraz rekonstrukcji historii poszczególnych postaci sięgałem do państwowych zasobów archiwalnych, m.in. z archiwów IPN czy Centralnego Archiwum Wojskowego (CAW).</p>
+                    <p>Przede wszystkim jednak składam regularne wizyty najbliższej rodzinie, przeczesując strychy i szuflady w poszukiwaniu starych dokumentów, aby zabezpieczyć je w wersji cyfrowej. Pytałem o zdjęcia, wspomnienia i rodzinne pamiątki.</p>
+                </div>
+            </details>
+            <details class="acc" id="s7">
+                <summary><span>Podziękowania</span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="acc-body">
+                    <p>Powstanie tego projektu nie byłoby możliwe bez pomocy i życzliwości wielu osób. Szczególne podziękowania kieruję do:</p>
+                    <p><strong>Janusza Hajdusa</strong> – za udostępnienie obszernego zbioru „KRONIKA”, zawierającego cenne informacje i zdjęcia rodzin Hajdusów, Szelągów, Krzysiców i innych. Na szczególną uwagę zasługują poruszające listy z wczesnych lat 2000. z nieżyjącą już Marią Hajdus – to dzięki tym wywiadom unikalne relacje przetrwały do dziś i mogą żyć w kolejnych opracowaniach.</p>
+                    <p><strong>Zofii i Aleksandry Radziemskich</strong> – za udostępnienie pracy „Dzieje rodu Walczaków”. Ten bezcenny dokument zawiera nie tylko szczegółowy wykaz potomków Stanisława i Stanisławy Walczaków, ale też barwny zapis prozaicznego, chłopskiego życia w dwudziestoleciu międzywojennym, relacje z lat II wojny światowej oraz czasów powojennych.</p>
+                    <p><strong>Marii Cisło</strong> – za udostępnienie bogatych albumów rodzinnych. To absolutnie imponujący zbiór archiwalnych, czarno-białych fotografii, które bez jej troski zaginęłyby z czasem.</p>
+                    <p><strong>Marii Pawlik</strong> – za cenny wkład informacyjny, udostępnione zdjęcia oraz nieocenioną pomoc przy identyfikacji anonimowych twarzy na zakurzonych kadrach.</p>
+                    <p><strong>Moich Rodziców</strong> – za nieustanne zainteresowanie, cierpliwość, podsuwanie kolejnych tropów i stałe wspieranie mojej pasji.</p>
+                </div>
+            </details>
+    </div>
+
+    <footer>
+        <p>Tutejowie &copy; 2026. Cyfrowe Archiwum Domowe.</p>
+    </footer>
+
+    <script src="dane.js"></script>
+    <script src="odblokuj.js"></script>
+    <script>
+    (function () {
+        var all = document.getElementById("accAll"), items = Array.prototype.slice.call(document.querySelectorAll(".acc"));
+        function sync() { all.textContent = items.every(function (d) { return d.open; }) ? "Zwiń wszystkie" : "Rozwiń wszystkie"; }
+        all.addEventListener("click", function () { var open = !items.every(function (d) { return d.open; }); items.forEach(function (d) { d.open = open; }); sync(); });
+        items.forEach(function (d) { d.addEventListener("toggle", sync); });
+        if (/^#s\d$/.test(location.hash)) { var t = document.querySelector(location.hash); if (t) t.open = true; }   // link typu projekt.html#s3 otwiera dany blok
+    })();
+    </script>
+
+    <script>
+    /* Efekt paralaksy: tło przesuwa się wolniej niż treść strony.
+       PREDKOSC: 0 = tło stoi w miejscu, 1 = tło przewija się tak samo szybko jak treść.
+       Przy ustawieniu systemowym „ogranicz ruch” (lub wyłączonym JavaScript) tło po prostu przewija się razem ze stroną. */
+    (function () {
+        var PREDKOSC = 0.4;
+        var layer = document.getElementById("parallaxBg");
+        if (!layer || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+        var root = document.documentElement, maxScroll = 0, ticking = false;
+
+        function update() {
+            ticking = false;
+            var y = Math.min(Math.max(window.pageYOffset || 0, 0), maxScroll);
+            layer.style.transform = "translate3d(0," + (-y * PREDKOSC).toFixed(1) + "px,0)";
+        }
+        function measure() {
+            var vh = window.innerHeight;
+            maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - vh);
+            layer.style.height = Math.ceil(vh + maxScroll * PREDKOSC) + "px";   // warstwa pokrywa cały zakres przewijania
+            update();
+        }
+        function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+
+        root.classList.add("parallax-on");
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", measure);
+        window.addEventListener("load", measure);
+        if (window.ResizeObserver) new ResizeObserver(measure).observe(document.body);
+        measure();
+    })();
+    </script>
+</body>
+</html>

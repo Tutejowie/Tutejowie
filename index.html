@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutejowie</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#232a36">
 
     <style>
         :root {
@@ -53,14 +57,7 @@
         html.parallax-on body { background-image: none; }   /* przy włączonej paralaksie tło rysuje warstwa powyżej */
 
         header { background: var(--ink); color: #fff; text-align: center; padding: 2.5rem 1rem 2.2rem; }
-        header { position: relative; }
-        .hdr-lock { position: absolute; top: 0.9rem; right: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.9rem; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 999px; background: rgba(255, 255, 255, 0.08); color: #fff; font: 0.85rem sans-serif; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-        .hdr-lock:hover, .hdr-lock:focus-visible { background: rgba(255, 255, 255, 0.2); border-color: #fff; outline: none; }
-        .hdr-lock .lk-open { display: none; }
-        .hdr-lock.on { border-color: #6fc28b; background: rgba(111, 194, 139, 0.18); color: #b9f0cc; }
-        .hdr-lock.on .lk-open { display: block; }
-        .hdr-lock.on .lk-closed { display: none; }
-        @media (max-width: 700px) { .hdr-lock span { display: none; } .hdr-lock { padding: 0.55rem; } }
+        header h1 a { color: inherit; text-decoration: none; }
         header h1 { margin: 0; font-size: 2.4rem; font-weight: normal; letter-spacing: 1px; }
         header p { margin: 0.5rem 0 0; font-style: italic; opacity: 0.8; }
         .spectrum { height: 6px; background: var(--spectrum); }
@@ -87,7 +84,7 @@
         }
         nav a:hover { border-bottom-color: var(--accent); }
 
-        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+        .container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
 
         section {
             background: var(--card);
@@ -279,6 +276,19 @@
         @media (min-width: 1100px) {
             body.tree-full.panel-open #drzewo { right: 400px; }
         }
+        /* ---------- strona „Drzewo genealogiczne” (?widok=drzewo): tylko drzewo, cała wysokość okna ---------- */
+        .only-tree-btn { white-space: nowrap; }
+        nav a.home { border-bottom-color: var(--accent); }
+        body.tree-only nav a.home { border-bottom-color: transparent; }
+        body.tree-only nav a.tree-link { border-bottom-color: var(--accent); }
+        body.tree-only #biografie, body.tree-only #urodziny, body.tree-only #galeria,
+        body.tree-only #drzewo > h2 { display: none; }
+        /* strona „Drzewo genealogiczne”: nagłówek i menu bez zmian; drzewo ma pełną wysokość, a strona przewija się w dół (bez powiększania) */
+        body.tree-only:not(.tree-full) { background: #fff; background-image: none; }
+        body.tree-only:not(.tree-full) .container { max-width: none; margin: 0; padding: 0; }
+        body.tree-only:not(.tree-full) #drzewo { margin: 0; padding: 0.9rem 1.2rem 1.2rem; border: 0; border-radius: 0; background: #fff; }
+        body.tree-only:not(.tree-full) #treeWrap { max-height: none; height: auto; }
+        body.tree-only #drzewo .hint, body.tree-only footer { display: none; }
         .hint { font-family: sans-serif; font-size: 0.82rem; color: var(--muted); margin: 0.6rem 0 0; }
 
         /* ---------- wyszukiwarka osób ---------- */
@@ -547,16 +557,6 @@
         .pe-rect.top span { bottom: auto; top: 100%; margin: 2px 0 0; }
         .lockbtn { display: inline-flex; align-items: center; gap: 0.4rem; margin-left: auto; }
         .lockbtn.on { background: #e7f6ec; border-color: #6fc28b; color: #146c3a; }
-        .unlock { position: fixed; inset: 0; z-index: 3500; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(8, 12, 20, 0.6); font-family: sans-serif; }
-        .unlock[hidden] { display: none; }
-        .unlock-box { width: min(420px, 100%); background: #fff; border-radius: 14px; padding: 1.4rem 1.5rem 1.2rem; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); }
-        .unlock-box h3 { margin: 0 0 0.5rem; font: normal 1.3rem Georgia, serif; }
-        .unlock-box p { margin: 0 0 0.9rem; font-size: 0.9rem; line-height: 1.5; color: #475467; }
-        .unlock-box label { display: block; margin-bottom: 0.3rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
-        .unlock-box input { width: 100%; box-sizing: border-box; padding: 0.65rem 0.8rem; border: 1px solid #cfd4dc; border-radius: 10px; font-size: 1rem; }
-        .unlock-box input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217, 43, 87, 0.15); }
-        .unlock-box .unlock-err { margin: 0.6rem 0 0; color: #b42318; font-weight: 600; }
-        .unlock-act { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
         .pf-big { position: fixed; inset: 0; z-index: 3000; background: rgba(8, 12, 20, 0.97); display: flex; flex-direction: column; font-family: sans-serif; }
         .pf-bar { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; justify-content: space-between; padding: 0.7rem 1rem; background: #fff; border-bottom: 1px solid var(--line); }
         .pf-people { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -946,23 +946,18 @@
     <div id="parallaxBg" aria-hidden="true"></div>
 
     <header>
-        <button type="button" class="hdr-lock" id="hdrLock" hidden aria-label="Odblokuj dane rodziny" title="Odblokuj dane rodziny (hasło)">
-            <svg class="lk-closed" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.1" fill="currentColor"/></svg>
-            <svg class="lk-open" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/><circle cx="12" cy="15.5" r="1.1" fill="currentColor"/></svg>
-            <span id="hdrLockTxt">Odblokuj dane rodziny</span>
-        </button>
-        <h1>Tutejowie</h1>
+        <h1><a href="index.html">Tutejowie</a></h1>
         <p>Archiwum Genealogiczne, Biografie i Historia Rodu</p>
     </header>
     <div class="spectrum"></div>
 
     <nav>
-        <a href="#drzewo">Drzewo genealogiczne</a>
-        <a href="#biografie">Biografie</a>
-        <a href="#galeria">Galeria rodzinna</a>
-        <a href="#urodziny">Urodziny</a>
-        <a href="biografie.html">Wszystkie biografie</a>
-        <a href="galeria.html">Pełna galeria</a>
+        <a class="home" href="index.html">Strona główna</a>
+        <a class="tree-link" href="index.html?widok=drzewo">Drzewo genealogiczne</a>
+        <a href="biografie.html">Biografie</a>
+        <a href="galeria.html">Galeria</a>
+        <a href="projekt.html">O projekcie</a>
+        <a href="kontakt.html">Kontakt</a>
     </nav>
 
     <div class="container">
@@ -1017,6 +1012,8 @@
                     <button type="button" class="ctl" id="zIn" aria-label="Powiększ">+</button>
                     <button type="button" class="ctl" id="zFit">Całość</button>
                     <button type="button" class="ctl" id="zMe">Igor</button>
+                    <button type="button" class="ctl only-tree-btn" id="oriBtn" hidden title="Przełącz między układem poziomym a pionowym"></button>
+                    <button type="button" class="ctl only-tree-btn" id="dirBtn" hidden title="Zamień strony: przodkowie po prawej albo po lewej">⇄ Odwróć strony</button>
                     <button type="button" class="ctl lockbtn" id="unlockBtn" hidden></button>
                 </div>
             </div>
@@ -1122,19 +1119,6 @@
     </div>
 
     <!-- ODBLOKOWANIE DANYCH ŻYJĄCYCH CZŁONKÓW RODZINY (hasło, odszyfrowanie w przeglądarce) -->
-    <div class="unlock" id="unlock" hidden role="dialog" aria-modal="true" aria-labelledby="unlockTitle">
-        <form class="unlock-box" id="unlockForm" autocomplete="off">
-            <h3 id="unlockTitle">Odblokuj dane rodziny</h3>
-            <p>Dane żyjących członków rodziny są zaszyfrowane. Wpisz hasło otrzymane od rodziny – dane odszyfrują się wyłącznie w Twojej przeglądarce i nie są nigdzie wysyłane.</p>
-            <label for="unlockPw">Hasło</label>
-            <input type="password" id="unlockPw" autocomplete="current-password" spellcheck="false" required>
-            <p class="unlock-err" id="unlockErr" role="alert" hidden></p>
-            <div class="unlock-act">
-                <button type="button" class="sbtn" id="unlockCancel">Anuluj</button>
-                <button type="submit" class="sbtn primary" id="unlockGo">Odblokuj</button>
-            </div>
-        </form>
-    </div>
 
     <!-- DUŻY PODGLĄD DO ZAZNACZANIA OSÓB (administrator) -->
     <div class="pf-big" id="peBig" hidden role="dialog" aria-label="Zaznaczanie osób na dużym zdjęciu">
@@ -1480,6 +1464,7 @@
 
     <!-- Opcjonalny plik z opublikowanymi danymi (eksport z panelu administratora). Jeśli go nie ma, strona używa danych wbudowanych poniżej. -->
     <script src="dane.js"></script>
+    <script src="odblokuj.js"></script>
 
     <!-- ============================================================
          DANE I MODEL RODZINY
@@ -2137,8 +2122,164 @@
                 return out;
             }
 
+
+            /* ---------- UKŁADY POZIOME (strona „Drzewo genealogiczne”): pokolenia w kolumnach, osoby jedna pod drugą ---------- */
+            var HG = 72;                       // odstęp poziomy między pokoleniami (kolumnami)
+            var RG = 14;                       // odstęp pionowy między sąsiednimi kafelkami
+            var PADS = 40;                     // margines po stronie starszych pokoleń
+            var PADY = 70;                     // margines po stronie najmłodszego (miejsce na znaczek „▼ dzieci”)
+            function elbowH(x0, y0, x1, y1, bx) { return "M" + x0 + " " + y0 + "H" + bx + "V" + y1 + "H" + x1; }
+
+            function layoutPedigreeH(M, maxGen, olderRight) {
+                var out = { orient: "h", olderRight: olderRight, tiles: [], links: [], marr: [], badges: [], expands: [], byKey: {}, W: 0, H: 0, rootCx: 0, rootCy: 0, rootY: 0, count: 0 };
+                var maxD = 0;
+                function build(p, depth, key, stack) {
+                    var n = { p: p, depth: depth, key: key, f: null, m: null, x: 0, y: 0, hh: null };
+                    if (depth > maxD) maxD = depth;
+                    if (depth < maxGen && !stack[p.id]) {
+                        stack[p.id] = 1;
+                        if (p.father) n.f = build(p.father, depth + 1, key + "F", stack);
+                        if (p.mother) n.m = build(p.mother, depth + 1, key + "M", stack);
+                        delete stack[p.id];
+                    }
+                    n.hidden = depth >= maxGen && !!(p.father || p.mother);
+                    return n;
+                }
+                var root = build(M.root, 0, "R", {});
+                function hh(n) {                                       // wysokość bloku przodków osoby n
+                    if (n.hh != null) return n.hh;
+                    if (!n.f && !n.m) return (n.hh = TH);
+                    var a = n.f ? hh(n.f) : 0, b = n.m ? hh(n.m) : 0;
+                    return (n.hh = Math.max(TH, a + ((a && b) ? RG : 0) + b));
+                }
+                function place(n, top) {
+                    var H = hh(n);
+                    if (!n.f && !n.m) { n.y = top + (H - TH) / 2; return; }
+                    var a = n.f ? hh(n.f) : 0, b = n.m ? hh(n.m) : 0, tot = a + ((a && b) ? RG : 0) + b, s0 = top + (H - tot) / 2;
+                    if (n.f) { place(n.f, s0); s0 += a + RG; }
+                    if (n.m) place(n.m, s0);
+                    var c1 = n.f ? n.f.y + TH / 2 : null, c2 = n.m ? n.m.y + TH / 2 : null;
+                    n.y = ((c1 != null && c2 != null) ? (c1 + c2) / 2 : (c1 != null ? c1 : c2)) - TH / 2;
+                }
+                place(root, PADT);
+                var pitch = TW + HG, left0 = olderRight ? PADY : PADS;
+                var all = [];
+                (function walk(n) { all.push(n); if (n.f) walk(n.f); if (n.m) walk(n.m); })(root);
+                all.forEach(function (n) { n.x = left0 + (olderRight ? n.depth : maxD - n.depth) * pitch; });
+                var sgn = olderRight ? 1 : -1;
+                all.forEach(function (n) {
+                    out.tiles.push({ p: n.p, x: n.x, y: n.y, w: TW, key: n.key, depth: n.depth });
+                    out.byKey[n.key] = n;
+                    var color = n.p === M.root ? "#9aa3b2" : lineColor(n.p);
+                    var edge = olderRight ? n.x + TW : n.x, y0 = n.y + TH / 2, bx = edge + sgn * HG / 2;
+                    if (n.f || n.m) {
+                        var ys = [y0], d = "M" + edge + " " + y0 + "H" + bx;
+                        [n.f, n.m].forEach(function (q) {
+                            if (!q) return;
+                            var qy = q.y + TH / 2; ys.push(qy);
+                            d += "M" + bx + " " + qy + "H" + (olderRight ? q.x : q.x + TW);
+                        });
+                        d += "M" + bx + " " + Math.min.apply(null, ys) + "V" + Math.max.apply(null, ys);
+                        out.links.push({ d: d, color: color });
+                        if (n.f && n.m) {
+                            var u = n.p.parentUnion;
+                            out.marr.push({ cx: bx, y: y0, color: color, title: "Małżeństwo: " + n.f.p.name + " i " + n.m.p.name + (u && u.date ? " (" + u.date + ")" : "") });
+                        }
+                        var pu = n.p.parentUnion;
+                        if (pu && pu.kids.length > 1) {
+                            out.badges.push({
+                                x: edge + sgn * 17, y: y0 - 13, text: "+" + (pu.kids.length - 1),
+                                title: "Pozostałe dzieci tej pary: " + (pu.kids.length - 1) + " – kliknij, aby zobaczyć gałąź",
+                                pid: (pu.a || pu.b).id
+                            });
+                        }
+                    }
+                    if (n.hidden) out.expands.push({ x: edge + sgn * 17, y: y0, key: n.key, pid: n.p.id });
+                });
+                var rk = M.root.kids.length;
+                if (rk) {
+                    out.badges.push({
+                        x: olderRight ? root.x - 26 : root.x + TW + 26, y: root.y + TH / 2, text: "▼ " + rk,
+                        title: "Dzieci: " + rk + " – kliknij, aby zobaczyć gałąź", pid: M.root.id
+                    });
+                }
+                out.count = all.length;
+                out.W = PADS + PADY + (maxD + 1) * TW + maxD * HG;
+                out.H = PADT + hh(root) + PAD;
+                out.rootCx = root.x + TW / 2; out.rootCy = root.y + TH / 2; out.rootY = root.y;
+                return out;
+            }
+
+            function layoutBranchH(M, rootP, olderRight) {
+                var out = { orient: "h", olderRight: olderRight, tiles: [], links: [], marr: [], badges: [], expands: [], byKey: {}, W: 0, H: 0, rootCx: 0, rootCy: 0, rootY: PADT, count: 0 };
+                var maxDepth = 0, counter = 0, GGv = 26;
+                function unit(p, depth, stack) {
+                    if (depth > maxDepth) maxDepth = depth;
+                    var u = { p: p, depth: depth, tiles: [], g0: null, g1: null, h: 0, ht: 0, tot: 0, posY: {} };
+                    function mk(un) { return un ? { un: un, partner: un.a === p ? un.b : un.a, kids: [] } : null; }
+                    u.g0 = mk(p.unions[0]); u.g1 = mk(p.unions[1]);
+                    if (!u.g1) { var g = u.g0; u.tiles = (g && g.un.a && g.un.b) ? [g.un.a, g.un.b] : [p]; }
+                    else { if (u.g1.partner) u.tiles.push(u.g1.partner); u.tiles.push(p); if (u.g0.partner) u.tiles.push(u.g0.partner); }
+                    if (!stack[p.id] && depth < 40) {
+                        stack[p.id] = 1;
+                        [u.g0, u.g1].forEach(function (g) { if (g) g.un.kids.forEach(function (k) { g.kids.push(unit(k, depth + 1, stack)); }); });
+                        delete stack[p.id];
+                    }
+                    var gh = function (g) { if (!g || !g.kids.length) return 0; var t = 0; g.kids.forEach(function (k) { t += k.h; }); return t + (g.kids.length - 1) * RG; };
+                    var gT = gh(u.g1), gB = gh(u.g0);
+                    u.ht = u.tiles.length * TH + (u.tiles.length - 1) * CG;
+                    u.tot = gT + ((gT && gB) ? GGv : 0) + gB;
+                    u.h = Math.max(u.ht, u.tot);
+                    return u;
+                }
+                var root = unit(rootP, 0, {});
+                var pitch = TW + HG, sgn = olderRight ? -1 : 1;            // dzieci leżą po stronie młodszych pokoleń
+                function place(u, top) {
+                    var cy = top + u.h / 2, y = cy - u.ht / 2;
+                    var x = PADS + (olderRight ? maxDepth - u.depth : u.depth) * pitch;
+                    u.x = x;
+                    u.tiles.forEach(function (t) {
+                        u.posY[t.id] = y;
+                        out.tiles.push({ p: t, x: x, y: y, w: TW, key: "B" + (counter++), depth: u.depth, spouse: t !== u.p });
+                        y += TH + CG;
+                    });
+                    var s0 = top + (u.h - u.tot) / 2;
+                    [u.g1, u.g0].forEach(function (g) {
+                        if (!g || !g.kids.length) return;
+                        g.kids.forEach(function (k) { place(k, s0); s0 += k.h + RG; });
+                        s0 += GGv - RG;
+                    });
+                    var edge = olderRight ? x : x + TW;
+                    [u.g1, u.g0].forEach(function (g) {
+                        if (!g) return;
+                        var color = lineColor(u.p), ay;
+                        if (g.partner) {
+                            var ya = u.posY[g.partner.id], yb = u.posY[u.p.id];
+                            ay = Math.min(ya, yb) + TH + CG / 2;
+                            out.marr.push({ d: "M" + x + " " + ay + "H" + (x + TW), cx: x + TW / 2, y: ay, color: color,
+                                title: "Małżeństwo: " + u.p.name + " i " + g.partner.name + (g.un.date ? " (" + g.un.date + ")" : "") });
+                        } else ay = u.posY[u.p.id] + TH / 2;
+                        if (!g.kids.length) return;
+                        var bx = edge + sgn * HG / 2, d = "M" + edge + " " + ay + "H" + bx, ys = [ay];
+                        g.kids.forEach(function (k) {
+                            var ky = k.posY[k.p.id] + TH / 2; ys.push(ky);
+                            d += "M" + bx + " " + ky + "H" + (olderRight ? k.x + TW : k.x);
+                        });
+                        d += "M" + bx + " " + Math.min.apply(null, ys) + "V" + Math.max.apply(null, ys);
+                        out.links.push({ d: d, color: color });
+                    });
+                }
+                place(root, PADT);
+                out.count = Math.max(0, out.tiles.filter(function (t) { return !t.spouse; }).length - 1);
+                out.W = 2 * PADS + (maxDepth + 1) * TW + maxDepth * HG;
+                out.H = PADT + root.h + PAD;
+                out.rootCx = root.x + TW / 2; out.rootCy = root.posY[rootP.id] + TH / 2;
+                return out;
+            }
+
             return {
                 TW: TW, TH: TH, PH: PH, U: U, tw: tw,
+                layoutPedigreeH: layoutPedigreeH, layoutBranchH: layoutBranchH,
                 buildSeed: buildSeed, normalize: normalize, buildModel: buildModel,
                 driveFolderId: driveFolderId, driveFileId: driveFileId, safeFolderUrl: safeFolderUrl, safeUrl: safeUrl,
                 layoutPedigree: layoutPedigree, layoutBranch: layoutBranch,
@@ -2191,8 +2332,15 @@
         var DATA = pickData(admin);
         var M = F.buildModel(DATA);
 
+        /* Strona „Drzewo genealogiczne” = ten sam plik z parametrem ?widok=drzewo: widać tylko drzewo, układ poziomy. */
+        var TREE_ONLY = /[?&]widok=drzewo/.test(location.search);
+        if (TREE_ONLY) {
+            document.body.classList.add("tree-only");
+            document.title = "Drzewo genealogiczne – Tutejowie";
+        }
         var state = {
             view: "pedigree", gen: 3, branch: null, selId: null, bio: false,
+            orient: "v", olderRight: true,
             scale: 1, L: null, ped: null, shown: {}
         };
 
@@ -2201,23 +2349,8 @@
 
         /* ---------- zaszyfrowane dane żyjących (AES-256-GCM, klucz z hasła przez PBKDF2 – Web Crypto, bez bibliotek) ---------- */
         var LOCKED = window.FAMILY_DATA && window.FAMILY_DATA.locked;       // zaszyfrowany blok z pliku dane.js (hasła tu NIE ma)
-        var unlocked = false, unlockFrom = null;
-        function fromB64(str) {
-            var bin = atob(str), a = new Uint8Array(bin.length);
-            for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-            return a;
-        }
-        function decryptLocked(password) {                       // zwraca Promise z danymi; przy złym haśle – odrzuca (tag GCM się nie zgadza)
-            if (!(window.crypto && crypto.subtle)) return Promise.reject(new Error("no-crypto"));
-            var enc = new TextEncoder();
-            return crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]).then(function (base) {
-                return crypto.subtle.deriveKey(
-                    { name: "PBKDF2", salt: fromB64(LOCKED.salt), iterations: LOCKED.iter, hash: "SHA-256" },
-                    base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
-            }).then(function (key) {
-                return crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64(LOCKED.iv) }, key, fromB64(LOCKED.ct));
-            }).then(function (buf) { return JSON.parse(new TextDecoder().decode(buf)); });
-        }
+        var unlocked = false;
+        function openUnlock() { TutejaLock.open(); }          // okienko na hasło i kłódka w nagłówku: odblokuj.js (wspólne dla wszystkich stron)
         function applySecret(sec) {                              // podmienia puste kafelki na pełne dane (tylko w pamięci strony)
             var ids = {};
             sec.people.forEach(function (p) { ids[p.id] = 1; });
@@ -2244,50 +2377,13 @@
         function syncLockBtn() {
             var b = $("unlockBtn");
             b.hidden = !LOCKED;
+            TutejaLock.setUnlocked(unlocked);
             if (!LOCKED) return;
             b.classList.toggle("on", unlocked);
             b.textContent = unlocked ? "🔓 Dane rodziny odblokowane · zablokuj" : "🔒 Odblokuj dane rodziny";
-            var h = $("hdrLock");                                  // ikona kłódki w prawym górnym rogu nagłówka
-            h.hidden = !LOCKED;
-            h.classList.toggle("on", unlocked);
-            $("hdrLockTxt").textContent = unlocked ? "Dane odblokowane · zablokuj" : "Odblokuj dane rodziny";
-            h.title = unlocked ? "Dane rodziny są odblokowane – kliknij, aby zablokować" : "Odblokuj dane rodziny (hasło)";
         }
-        function openUnlock() {
-            if (!LOCKED || unlocked) return;
-            unlockFrom = document.activeElement;
-            $("unlockErr").hidden = true;
-            $("unlockPw").value = "";
-            $("unlock").hidden = false;
-            $("unlockPw").focus();
-        }
-        function closeUnlock() {
-            $("unlock").hidden = true;
-            $("unlockPw").value = "";
-            if (unlockFrom && unlockFrom.focus) { try { unlockFrom.focus(); } catch (e) {} }
-        }
-        function toggleLock() {
-            if (unlocked) location.reload();                     // „zablokuj”: odświeżenie czyści odszyfrowane dane z pamięci
-            else openUnlock();
-        }
-        $("unlockBtn").addEventListener("click", toggleLock);
-        $("hdrLock").addEventListener("click", toggleLock);
-        $("unlockCancel").addEventListener("click", closeUnlock);
-        $("unlock").addEventListener("mousedown", function (e) { if (e.target === this) closeUnlock(); });
-        $("unlockForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            var pw = $("unlockPw").value, go = $("unlockGo"), err = $("unlockErr");
-            if (!pw) return;
-            go.disabled = true; go.textContent = "Sprawdzam…"; err.hidden = true;
-            decryptLocked(pw).then(function (sec) {
-                closeUnlock();
-                applySecret(sec);
-            }).catch(function (ex) {
-                err.textContent = ex && ex.message === "no-crypto" ? "Ta przeglądarka nie obsługuje szyfrowania (otwórz stronę przez https)." : "Nieprawidłowe hasło. Spróbuj ponownie.";
-                err.hidden = false;
-                $("unlockPw").select();
-            }).then(function () { go.disabled = false; go.textContent = "Odblokuj"; });
-        });
+        $("unlockBtn").addEventListener("click", function () { if (unlocked) TutejaLock.lock(); else TutejaLock.open(); });
+        TutejaLock.onUnlock(applySecret);                      // po wpisaniu hasła: dane od razu pojawiają się w drzewie
         syncLockBtn();
 
         /* ---------- kolory kafelków ---------- */
@@ -2385,7 +2481,9 @@
 
         function render() {
             if (state.view === "branch" && !M.byId[state.branch]) state.view = "pedigree";
-            var L = state.view === "branch" ? F.layoutBranch(M, M.byId[state.branch]) : F.layoutPedigree(M, state.gen);
+            var hz = state.orient === "h", br = state.view === "branch";
+            var L = br ? (hz ? F.layoutBranchH(M, M.byId[state.branch], state.olderRight) : F.layoutBranch(M, M.byId[state.branch]))
+                       : (hz ? F.layoutPedigreeH(M, state.gen, state.olderRight) : F.layoutPedigree(M, state.gen));
             state.L = L;
             state.shown = {};
             L.tiles.forEach(function (t) { state.shown[t.p.id] = true; });
@@ -2404,7 +2502,8 @@
             var links = S("g", { fill: "none", "stroke-width": 2.2, "stroke-linecap": "round", "stroke-linejoin": "round" }, svg);
             L.links.forEach(function (l) { S("path", { d: l.d, stroke: l.color, opacity: 0.9 }, links); });
             L.marr.forEach(function (m) {
-                S("path", { d: "M" + m.x1 + " " + m.y + "H" + m.x2, stroke: m.color, opacity: 0.9 }, links);
+                if (m.x1 != null) S("path", { d: "M" + m.x1 + " " + m.y + "H" + m.x2, stroke: m.color, opacity: 0.9 }, links);
+                else if (m.d) S("path", { d: m.d, stroke: m.color, opacity: 0.9 }, links);
                 var dot = S("circle", { cx: m.cx, cy: m.y, r: 4.5, fill: "#fff", stroke: m.color, "stroke-width": 2 }, links);
                 S("title", {}, dot).textContent = m.title;
             });
@@ -2468,11 +2567,22 @@
                 top: Math.max(0, (t.y + TH / 2) * state.scale - wrap.clientHeight / 2),
                 behavior: smooth ? "smooth" : "auto"
             });
+            if (TREE_ONLY && !isFull() && wrap.scrollHeight <= wrap.clientHeight + 1) {   // ramka nie przewija się w pionie – przewija się strona
+                var y = wrap.getBoundingClientRect().top + window.pageYOffset + (t.y + TH / 2) * state.scale - window.innerHeight / 2;
+                window.scrollTo({ top: Math.max(0, y), behavior: smooth ? "smooth" : "auto" });
+            }
         }
 
         /* widok startowy: drzewo – Igor na dole, gałąź – początek gałęzi na górze */
         function startView() {
             var L = state.L;
+            if (L.orient === "h") {                              // układ poziomy: całość mieści się w ramce, widok od strony Igora (lub początku gałęzi)
+                state.scale = Math.max(0.75, Math.min(1, (wrap.clientWidth - 2) / L.W));       // czytelny rozmiar; wysokość drzewa przewija strona
+                applyScale();
+                var rootRight = state.view === "pedigree" ? !L.olderRight : L.olderRight;
+                wrap.scrollTo({ left: rootRight ? L.W * state.scale : 0, top: Math.max(0, L.rootCy * state.scale - wrap.clientHeight / 2) });
+                return;
+            }
             state.scale = Math.max(state.view === "pedigree" ? 0.4 : 0.7, Math.min(1, (wrap.clientWidth - 2) / L.W));   // całe drzewo mieści się w ramce
             applyScale();
             if (state.view === "pedigree") {
@@ -2487,6 +2597,10 @@
 
         function fit() {
             var L = state.L;
+            if (TREE_ONLY && !isFull()) {                        // strona drzewa przewija się w dół – dopasowanie tylko do szerokości
+                state.scale = Math.max(0.2, Math.min(1, (wrap.clientWidth - 2) / L.W));
+                applyScale(); wrap.scrollTo(0, 0); return;
+            }
             state.scale = Math.max(0.2, Math.min(1, Math.min(wrap.clientWidth / L.W, wrap.clientHeight / L.H)));
             applyScale();
             wrap.scrollTo(0, 0);
@@ -2512,9 +2626,18 @@
             $("pedTools").hidden = br;
             $("branchBar").hidden = !br;
             $("zMe").textContent = br ? "Początek" : M.root.name.split(" ")[0];
-            $("treeHint").textContent = br
+            var hzT = state.orient === "h", rt = state.olderRight;
+            $("treeHint").textContent = hzT
+                ? (br ? "Widok gałęzi: wybrana osoba po " + (rt ? "prawej" : "lewej") + ", jej dzieci i kolejne pokolenia po " + (rt ? "lewej" : "prawej") + ". Kliknij inną osobę, aby zobaczyć jej profil."
+                      : "Igor stoi po " + (rt ? "lewej" : "prawej") + " stronie, jego przodkowie – coraz starsi – po " + (rt ? "prawej" : "lewej") + ". Ctrl + kółko myszy powiększa widok.")
+                : br
                 ? "Widok gałęzi: wybrana osoba na górze, jej dzieci, wnuki i kolejne pokolenia niżej. Kliknij inną osobę, aby zobaczyć jej profil."
                 : "Najstarsze pokolenia są u góry, Igor na dole. Ctrl + kółko myszy powiększa widok.";
+            if (TREE_ONLY) {
+                $("oriBtn").textContent = hzT ? "↕ Układ pionowy" : "↔ Układ poziomy";
+                $("dirBtn").hidden = !hzT;
+                $("bkUp").textContent = hzT ? (rt ? "→ Rodzice" : "← Rodzice") : "↑ Rodzice";
+            }
             if (br) {
                 var r = M.byId[state.branch];
                 var names = [r.name].concat(F.partnersOf(r).map(function (x) { return x.name; }));
@@ -2803,6 +2926,9 @@
         $("zIn").addEventListener("click", function () { setScale(state.scale * 1.2); });
         $("zOut").addEventListener("click", function () { setScale(state.scale / 1.2); });
         $("zFit").addEventListener("click", fit);
+        function applyOrient() { state.ped = null; render(); syncToolbar(); startView(); }
+        $("oriBtn").addEventListener("click", function () { state.orient = state.orient === "h" ? "v" : "h"; lsSet("tuteja_tree_orient", state.orient); applyOrient(); });
+        $("dirBtn").addEventListener("click", function () { state.olderRight = !state.olderRight; lsSet("tuteja_tree_dir", state.olderRight ? "r" : "l"); applyOrient(); });
         $("zMe").addEventListener("click", function () {
             if (state.view === "pedigree") startView();
             else centerOn(state.branch, true);
@@ -3409,7 +3535,16 @@
             });
         }
 
-        function openSearchList() { searchList.hidden = false; searchInput.setAttribute("aria-expanded", "true"); }
+        function placeSearchList() {                           // lista nie może wychodzić poza okno (np. w pełnym ekranie, gdy pole jest przy lewej krawędzi)
+            var r = searchBox.getBoundingClientRect(), w = Math.min(390, window.innerWidth * 0.92), m = 8;
+            var left = r.right - w;                             // domyślnie: prawa krawędź listy przy prawej krawędzi pola
+            if (left < m) left = r.left;                        // brakuje miejsca po lewej – wyrównaj do lewej krawędzi pola
+            if (left + w > window.innerWidth - m) left = window.innerWidth - m - w;
+            if (left < m) left = m;
+            searchList.style.left = (left - r.left) + "px"; searchList.style.right = "auto";
+            searchList.style.maxHeight = Math.max(160, Math.min(380, window.innerHeight - r.bottom - 24)) + "px";
+        }
+        function openSearchList() { searchList.hidden = false; placeSearchList(); searchInput.setAttribute("aria-expanded", "true"); }
         function closeSearchList() { searchList.hidden = true; searchInput.setAttribute("aria-expanded", "false"); }
 
         function setSearchActive(i, scroll) {
@@ -3582,9 +3717,12 @@
             state.view = "branch"; state.branch = p.id;
             select(p.id, { stay: true });
             var L = state.L;
+            if (L.orient === "h") { startView(); }
+            else {
             state.scale = Math.max(0.2, Math.min(1, (wrap.clientWidth - 2) / L.W));   // cała gałąź mieści się na szerokość
             applyScale();
             wrap.scrollTo({ left: Math.max(0, L.rootCx * state.scale - wrap.clientWidth / 2), top: 0 });
+            }
             document.getElementById("drzewo").scrollIntoView();
         }
         Array.prototype.forEach.call(document.querySelectorAll(".chip[data-m]"), function (c) {
@@ -4606,7 +4744,6 @@
 
         document.addEventListener("keydown", function (e) {
             if (e.key !== "Escape") return;
-            if (!$("unlock").hidden) { closeUnlock(); return; }
             if (!$("peBig").hidden) { closeBig(); return; }
             if (!lbBox.hidden) { lbClose(); return; }
             if (!cropBox.hidden) { closeCrop(); return; }
@@ -4645,6 +4782,14 @@
             pulseNode(p.id);
         }
 
+        if (TREE_ONLY) {                                      // ustawienia strony „Drzewo genealogiczne”
+            state.orient = lsGet("tuteja_tree_orient") === "v" ? "v" : "h";
+            state.olderRight = lsGet("tuteja_tree_dir") !== "l";
+            $("oriBtn").hidden = false;
+            var hl = document.querySelector(".howto-lead");
+            if (hl) hl.textContent = "Po jednej stronie stoi Igor, a obok niego – w kolejnych kolumnach – jego rodzice, dziadkowie i pradziadkowie. Oto jak z drzewa korzystać:";
+            Array.prototype.forEach.call(document.querySelectorAll(".howto li"), function (li) { li.innerHTML = li.innerHTML.replace("nad kafelkiem", "przy kafelku"); });
+        }
         fillGenSelect();
         renderBioStrip();
         renderGalStrip();
@@ -4653,6 +4798,7 @@
         syncToolbar();
         startView();
         updateAdminBar();
+        TutejaLock.restore().then(function (sec) { if (sec) applySecret(sec); });   // zapamiętane odblokowanie (po przejściu z innej strony)
         var wanted = /[?&]osoba=(\d+)/.exec(location.search);
         if (wanted) {
             try { history.replaceState(null, "", location.pathname + "#drzewo"); } catch (e) {}
