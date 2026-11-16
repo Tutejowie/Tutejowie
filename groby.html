@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groby – Tutejowie</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#232a36">
+
+    <style>
+        :root {
+            --ink: #232a36;
+            --muted: #667085;
+            --line: #e4e7ec;
+            --bg: #fbfbfa;
+            --card: #ffffff;
+            --accent: #d92b57;
+            --accent-dark: #b81f47;
+            --spectrum: linear-gradient(90deg, #0aa5cf 0%, #27c9b8 17%, #6fdc6f 33%, #b6e82e 49%, #ff3d6e 51%, #ff7a45 72%, #ffd43b 100%);
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        /* ---------- Paralaksa: tło przesuwa się wolniej niż treść (prędkość ustawiana w skrypcie na dole strony) ---------- */
+        #parallaxBg {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;                              /* wysokość ustawia skrypt */
+            z-index: -1;
+            pointer-events: none;
+            background: url("t%C5%82o.png") center top / cover no-repeat;   /* plik tło.png obok index.html */
+            will-change: transform;
+        }
+        html.parallax-on #parallaxBg { display: block; }
+        html.parallax-on body { background-image: none; }   /* przy włączonej paralaksie tło rysuje warstwa powyżej */
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background-color: #f1efea;                 /* kolor zapasowy, gdyby obrazek się nie wczytał */
+            background-image: url("t%C5%82o.png");      /* plik tło.png w tym samym folderze co index.html */
+            background-repeat: no-repeat;
+            background-position: center top;
+            background-size: cover;
+            background-attachment: scroll;             /* tło przewija się razem ze stroną */
+            min-height: 100vh;
+            color: var(--ink);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        header { background: var(--ink); color: #fff; text-align: center; padding: 2.5rem 1rem 2.2rem; }
+        header h1 { margin: 0; font-size: 2.4rem; font-weight: normal; letter-spacing: 1px; }
+        header h1 a { color: inherit; text-decoration: none; }
+        header p { margin: 0.5rem 0 0; font-style: italic; opacity: 0.8; }
+        .spectrum { height: 6px; background: var(--spectrum); }
+        @media (max-width: 600px) { header h1 { font-size: 1.7rem; } }
+
+        nav { background: #fff; border-bottom: 1px solid var(--line); text-align: center; padding: 0.8rem; position: sticky; top: 0; z-index: 100; }
+        nav a {
+            color: var(--ink);
+            text-decoration: none;
+            margin: 0 14px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            padding-bottom: 3px;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        nav a:hover, nav a.current { border-bottom-color: var(--accent); }
+
+        .container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        section { background: var(--card); padding: 2rem; margin-bottom: 2rem; border-radius: 10px; border: 1px solid var(--line); }
+        h2 { color: var(--ink); margin: 0 0 1rem; font-weight: normal; font-size: 1.7rem; }
+        h2::after { content: ""; display: block; height: 3px; width: 72px; margin-top: 0.5rem; border-radius: 2px; background: var(--spectrum); }
+
+
+        /* ---------- groby ---------- */
+        .search { position: relative; }
+        .search input { width: 100%; max-width: 100%; font: 0.9rem sans-serif; padding: 0.5rem 2rem 0.5rem 2.15rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; color: var(--ink); transition: border-color 0.15s, box-shadow 0.15s; }
+        .search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217, 43, 87, 0.15); }
+        .search-ic { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #98a2b3; pointer-events: none; }
+        .search-x { position: absolute; right: 0.45rem; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border: 0; border-radius: 50%; background: #e4e7ec; color: #475467; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0; }
+        .search-x:hover { background: #cfd4dc; }
+        .search-list { position: absolute; top: calc(100% + 8px); left: 0; width: min(430px, 92vw); max-height: 380px; overflow-y: auto; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 34px rgba(20, 30, 50, 0.22); z-index: 60; padding: 0.3rem; text-align: left; }
+        .sr-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; position: sticky; top: -0.3rem; z-index: 1; background: #fff; margin: -0.3rem -0.3rem 0.3rem; padding: 0.45rem 0.8rem; font: 0.78rem sans-serif; color: var(--muted); border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; }
+        .sr-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.45rem 0.6rem; border-radius: 8px; cursor: pointer; }
+        .sr-item.active { background: #f2f4f7; }
+        .sr-av { flex: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 600 0.8rem Georgia, serif; background-size: cover; background-position: center 20%; border: 2px solid var(--c, #aab2bf); }
+        .sr-t { min-width: 0; flex: 1; }
+        .sr-n { display: block; font: normal 1rem/1.25 Georgia, serif; color: var(--ink); }
+        .sr-n mark { background: rgba(217, 43, 87, 0.16); color: inherit; border-radius: 2px; padding: 0 1px; font-weight: 700; }
+        .sr-s { display: block; font: 0.78rem sans-serif; color: var(--muted); }
+        .sr-tag { margin-left: auto; font: 0.7rem sans-serif; color: var(--muted); background: #f2f4f7; border-radius: 999px; padding: 0.1rem 0.55rem; white-space: nowrap; }
+        .sr-empty { padding: 0.9rem 0.8rem; font: 0.86rem sans-serif; color: var(--muted); }
+        .active-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0 0 0.8rem; font-family: sans-serif; }
+        .pf { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.35rem 0.25rem 0.8rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; font: 0.83rem sans-serif; }
+        .pf::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c, #999); }
+        .pf button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: #e4e7ec; color: #475467; cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0; }
+        .pf button:hover { background: #cfd4dc; }
+        .tools2 { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.1rem; font-family: sans-serif; }
+        .tools2 .box { flex: 1; min-width: 240px; }
+        .tools2 label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); letter-spacing: 0.4px; margin-bottom: 0.3rem; }
+        .tools2 .plain { width: 100%; padding: 0.5rem 0.9rem; border: 1px solid #cfd4dc; border-radius: 999px; font: 0.9rem sans-serif; background: #fff; }
+        .tools2 .plain:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217, 43, 87, 0.15); }
+        .tools2 select { padding: 0.5rem 0.8rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; font: 0.9rem sans-serif; }
+        .active-row { margin: 0 0 1rem; }
+        .count { color: var(--muted); font: 0.88rem sans-serif; margin: 0 0 1rem; }
+        .photos .stage { position: relative; }
+        .photos .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(35, 42, 54, 0.72); color: #fff; font-size: 1.6rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 0 3px; }
+        .photos .nav:hover { background: rgba(35, 42, 54, 0.92); }
+        .photos .nav.prev { left: 10px; } .photos .nav.next { right: 10px; }
+        .photos .ctr { position: absolute; right: 10px; bottom: 10px; padding: 0.1rem 0.6rem; border-radius: 999px; background: rgba(35, 42, 54, 0.72); color: #fff; font: 0.78rem sans-serif; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; }
+        .gcard { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; font: inherit; color: inherit; display: flex; flex-direction: column; transition: box-shadow .15s, transform .15s; }
+        .gcard:hover, .gcard:focus-visible { box-shadow: 0 6px 20px rgba(35, 42, 54, 0.15); transform: translateY(-2px); outline: none; }
+        .gcard .ph { aspect-ratio: 4 / 3; background: #eceff3; display: flex; align-items: center; justify-content: center; color: #98a2b3; font: 0.85rem sans-serif; overflow: hidden; }
+        .gcard .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .gcard .bd { padding: 0.9rem 1rem 1rem; }
+        .gcard h3 { margin: 0 0 0.25rem; font-size: 1.1rem; font-weight: normal; line-height: 1.3; }
+        .gcard .cem { font: 0.85rem sans-serif; color: var(--muted); }
+        .gcard .who { font: 0.85rem sans-serif; margin-top: 0.5rem; color: var(--ink); }
+        .gcard .loc { font: 0.8rem sans-serif; margin-top: 0.4rem; color: var(--accent-dark); }
+        .empty { text-align: center; color: var(--muted); font-family: sans-serif; padding: 2rem 0; }
+        .note { background: #fff8e1; border: 1px solid #f0d98a; border-radius: 8px; padding: 0.5rem 0.9rem; margin-bottom: 1rem; font: 0.85rem sans-serif; }
+
+        .ov { position: fixed; inset: 0; background: rgba(20, 24, 32, 0.6); z-index: 300; overflow: auto; padding: 2rem 1rem; }
+        .modal { background: #fff; max-width: 880px; margin: 0 auto; border-radius: 14px; padding: 1.8rem; position: relative; }
+        .modal .x { position: absolute; top: 0.7rem; right: 0.8rem; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #eef0f3; font-size: 1.3rem; cursor: pointer; }
+        .modal h2 { margin-right: 2.5rem; }
+        .photos { display: grid; gap: 0.6rem; margin-bottom: 1.2rem; }
+        .photos .main { width: 100%; max-height: 460px; object-fit: contain; background: #eceff3; border-radius: 10px; display: block; }
+        .photos .thumbs { display: flex; gap: 0.5rem; }
+        .photos .thumbs img { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; background: #eceff3; }
+        .photos .thumbs img.on { border-color: var(--accent); }
+        .modal h4 { margin: 1.3rem 0 0.5rem; font: 600 0.8rem sans-serif; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+        .lb-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .lb-chip { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.85rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; font: 0.85rem sans-serif; color: var(--ink); cursor: pointer; }
+        .lb-chip::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c, #999); }
+        .lb-chip:hover { border-color: var(--ink); }
+        .lb-chip.on { background: #eef1f5; border-color: var(--c, #475467); font-weight: 600; box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 2px var(--c, #475467); }
+        .lb-hint { margin: 0.6rem 0 0; font: 0.78rem/1.4 sans-serif; color: var(--muted); }
+        .lb-treebtn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; margin: 1rem 0 0; padding: 0.7rem 1rem; border: 0; border-radius: 10px; background: var(--ink); color: #fff !important; font: 600 0.92rem sans-serif; text-decoration: none !important; cursor: pointer; }
+        .lb-treebtn:hover { background: #3a4558; }
+        .lb-treebtn small { font: 400 0.8rem sans-serif; opacity: 0.8; }
+        .addr { font-family: sans-serif; }
+        .btn { display: inline-block; margin-top: 0.6rem; padding: 0.55rem 1rem; border-radius: 8px; background: var(--accent); color: #fff; text-decoration: none; font: 600 0.9rem sans-serif; }
+        .btn:hover { background: var(--accent-dark); }
+        .btn.ecm { background: #f97316; }                 /* pomarańcz eCmentarzy */
+        .btn.ecm:hover { background: #e0620a; }
+        .btn.gb { background: #064e3b; }   /* ciemna zieleń Grobonet */
+        .btn.gb:hover { background: #04372a; }
+        table.loc { border-collapse: collapse; font-family: sans-serif; width: 100%; max-width: 420px; }
+        table.loc th, table.loc td { border: 1px solid var(--line); padding: 0.55rem 0.8rem; text-align: center; }
+        table.loc th { background: #f5f6f8; font-size: 0.78rem; letter-spacing: 1px; color: var(--muted); }
+        table.loc td { font-size: 1.1rem; }
+        .mapbox { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; height: 280px; background: #eceff3; }
+        .mapbox iframe { width: 100%; height: 100%; border: 0; display: block; }
+        .maprow { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .btn.nav-btn { background: #1a73e8; }
+        .btn.nav-btn:hover { background: #1558b8; }
+        .maplink { font: 0.85rem sans-serif; color: var(--muted); margin-top: 0.6rem; }
+        .desc { white-space: pre-wrap; }
+
+        footer { text-align: center; padding: 2rem; font-size: 0.85rem; color: #777; font-family: sans-serif; }
+        footer p { display: inline-block; margin: 0; padding: 0.35rem 1.1rem; background: rgba(255, 255, 255, 0.88); border-radius: 999px; }
+        @media (max-width: 600px) { section { padding: 1.4rem 1.1rem; } }
+    </style>
+</head>
+<body>
+    <div id="parallaxBg" aria-hidden="true"></div>
+
+    <header>
+        <h1><a href="index.html">Tutejowie</a></h1>
+        <p>Archiwum Genealogiczne, Biografie i Historia Rodu</p>
+    </header>
+    <div class="spectrum"></div>
+
+    <nav>
+        <a href="index.html">Strona główna</a>
+        <a href="index.html?widok=drzewo">Drzewo genealogiczne</a>
+        <a href="biografie.html">Biografie</a>
+        <a href="galeria.html">Galeria</a>
+        <a href="groby.html" class="current">Groby</a>
+        <a href="projekt.html">O projekcie</a>
+        <a href="kontakt.html">Kontakt</a>
+    </nav>
+
+    <div class="container">
+        <section>
+            <h2>Groby rodzinne</h2>
+            <p id="adminNote" class="note" hidden>Tryb administratora: widzisz wersję roboczą z tej przeglądarki.</p>
+            <div class="tools2">
+                <div class="box">
+                    <label for="q">Szukaj grobu lub cmentarza</label>
+                    <input class="plain" type="search" id="q" placeholder="Nazwa grobu, cmentarz…" autocomplete="off">
+                </div>
+                <div class="box">
+                    <label for="pq">Szukaj osoby</label>
+                    <div class="search" id="search">
+                        <svg class="search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                        <input id="pq" type="text" role="combobox" aria-expanded="false" aria-controls="searchList" aria-autocomplete="list" placeholder="Wpisz imię lub nazwisko…" aria-label="Szukaj osoby" autocomplete="off" spellcheck="false">
+                        <button type="button" class="search-x" id="searchX" aria-label="Wyczyść wyszukiwanie" hidden>&times;</button>
+                        <div class="search-list" id="searchList" role="listbox" aria-label="Wyniki wyszukiwania" hidden></div>
+                    </div>
+                </div>
+                <select id="cemSel" aria-label="Cmentarz"><option value="">Wszystkie cmentarze</option></select>
+            </div>
+            <div class="active-row" id="active" hidden></div>
+            <p class="count" id="cnt"></p>
+            <div class="grid" id="grid"></div>
+            <p class="empty" id="empty" hidden></p>
+        </section>
+    </div>
+
+    <div class="ov" id="ov" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="modal"></div></div>
+
+    <footer>
+        <p>Tutejowie &copy; 2026. Cyfrowe Archiwum Domowe.</p>
+    </footer>
+
+    <script src="dane.js"></script>
+    <script src="odblokuj.js"></script>
+    <script>
+    TutejaLock.ready(function () {
+        function $(id) { return document.getElementById(id); }
+        function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+        function clean(s, n) { return typeof s === "string" ? s.replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, n) : ""; }
+        function safeUrl(s) { try { var u = new URL(String(s || "").trim()); return u.protocol === "https:" ? u.href : ""; } catch (e) { return ""; } }
+        function fold(s) { return String(s || "").toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+        function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+        var FOLDER = "https://drive.google.com/drive/folders/1EK0JHYQhBmZdr6V-StT-O8kTgVE_sxBe";
+
+        function loadRaw() {
+            if (lsGet("tuteja_admin") === "1") {
+                var r = lsGet("tuteja_family_draft_v1");
+                if (r) { try { var d = JSON.parse(r); if (d && Array.isArray(d.people)) { $("adminNote").hidden = false; return d; } } catch (e) {} }
+            }
+            return window.FAMILY_DATA && Array.isArray(window.FAMILY_DATA.people) ? window.FAMILY_DATA : {};
+        }
+        var raw = loadRaw();
+        function hueAt(t) {
+            if (t < 0.5) {
+                var st = [[0, 204], [0.25, 188], [0.375, 112], [0.5, 78]];
+                for (var i = 1; i < st.length; i++) {
+                    if (t <= st[i][0]) return st[i - 1][1] + (st[i][1] - st[i - 1][1]) * (t - st[i - 1][0]) / (st[i][0] - st[i - 1][0]);
+                }
+            }
+            return (345 + 65 * ((t - 0.5) / 0.5)) % 360;
+        }
+        var rootId = parseInt(raw.rootId, 10) || 0;
+        var everyone = (Array.isArray(raw.people) ? raw.people : []).map(function (r) {
+            return { id: parseInt(r.id, 10) || 0, name: clean(r.name, 120) || "Bez nazwy", maiden: clean(r.maiden, 80), gender: r.gender, b: clean(r.b, 40), d: clean(r.d, 40), living: r.living === true, photo: typeof r.photo === "string" && /^data:image\//.test(r.photo) ? r.photo : "", fid: parseInt(r.fid, 10) || null, mid: parseInt(r.mid, 10) || null, t: null };
+        });
+        (function lineage() {
+            var byId = {};
+            everyone.forEach(function (p) { byId[p.id] = p; });
+            var root = byId[rootId];
+            if (root) {
+                (function walk(p, lo, hi, stack) {
+                    if (stack[p.id]) return;
+                    stack[p.id] = 1;
+                    var mid = (lo + hi) / 2;
+                    if (p.t == null) p.t = mid;
+                    if (p.fid && byId[p.fid]) walk(byId[p.fid], lo, mid, stack);
+                    if (p.mid && byId[p.mid]) walk(byId[p.mid], mid, hi, stack);
+                    delete stack[p.id];
+                })(root, 0, 1, {});
+            }
+            var partners = {};
+            function link(a, b) { (partners[a] = partners[a] || []).push(b); (partners[b] = partners[b] || []).push(a); }
+            everyone.forEach(function (p) { if (p.fid && p.mid) link(p.fid, p.mid); });
+            (raw.marriages || []).forEach(function (m) {
+                var a = parseInt(m.a, 10), b = parseInt(m.b, 10);
+                if (byId[a] && byId[b]) link(a, b);
+            });
+            var changed = true, guard = 0;
+            while (changed && guard++ < 60) {
+                changed = false;
+                everyone.forEach(function (p) {
+                    if (p.t != null) return;
+                    var f = p.fid && byId[p.fid], m = p.mid && byId[p.mid];
+                    var src = (f && f.t != null) ? f : ((m && m.t != null) ? m : null);
+                    if (src) { p.t = src.t; changed = true; return; }
+                    var ps = partners[p.id] || [];
+                    for (var i = 0; i < ps.length; i++) {
+                        var o = byId[ps[i]];
+                        if (o && o.t != null) { p.t = o.t; changed = true; return; }
+                    }
+                });
+            }
+        })();
+        var byId = {};
+        everyone.forEach(function (p) { if (!p.living) byId[p.id] = p; });
+        var peopleById = byId;
+        function dotColor(p) {
+            if (p.id === rootId) return "#2d3544";
+            if (p.t == null) return "#aab2bf";
+            return "hsl(" + Math.round(hueAt(p.t)) + ",85%,52%)";
+        }
+
+        var graves = [];
+        ((raw.graves && Array.isArray(raw.graves.items)) ? raw.graves.items : []).slice(0, 500).forEach(function (it, i) {
+            if (!it || typeof it !== "object") return;
+            var photos = [];
+            (Array.isArray(it.photos) ? it.photos : []).forEach(function (k) {
+                k = typeof k === "string" ? k.trim() : "";
+                var key = /^[A-Za-z0-9_-]{10,80}$/.test(k) ? k : safeUrl(k);
+                if (key && photos.length < 3) photos.push(key);
+            });
+            var ppl = (Array.isArray(it.persons) ? it.persons : []).map(function (x) { return parseInt(x, 10); }).filter(function (x) { return byId[x]; });
+            graves.push({
+                id: /^g\d{1,6}$/.test(it.id || "") ? it.id : "g" + (i + 1), name: clean(it.name, 160), cemetery: clean(it.cemetery, 160), ecmUrl: safeUrl(it.ecmUrl), gbUrl: safeUrl(it.gbUrl),
+                address: clean(it.address, 200), lat: coord(it.lat, 90), lng: coord(it.lng, 180), sector: clean(it.sector, 40), row: clean(it.row, 40), number: clean(it.number, 40), desc: clean(it.desc, 3000), persons: ppl, photos: photos
+            });
+        });
+
+        function coord(v, max) { var n = typeof v === "number" ? v : (typeof v === "string" && v.trim() ? parseFloat(v) : NaN); return isFinite(n) && Math.abs(n) <= max ? n : null; }
+        function thumb(k, w) { return /^[A-Za-z0-9_-]{10,80}$/.test(k) ? "https://drive.google.com/thumbnail?id=" + k + "&sz=w" + w : k; }
+        function alt(k, w) { return /^[A-Za-z0-9_-]{10,80}$/.test(k) ? "https://lh3.googleusercontent.com/d/" + k + "=w" + w : ""; }
+        function img(k, w, cls) {
+            var im = document.createElement("img"); if (cls) im.className = cls;
+            im.alt = ""; im.loading = "lazy"; im.decoding = "async"; im.referrerPolicy = "no-referrer";
+            var tried = false;
+            im.addEventListener("error", function () { var a = alt(k, w); if (!tried && a) { tried = true; im.src = a; } else im.style.visibility = "hidden"; });
+            im.src = thumb(k, w); return im;
+        }
+        function life(p) {
+            var by = /(\d{4})/.exec(p.b || ""), dy = /(\d{4})/.exec(p.d && p.d !== "?" ? p.d : "");
+            if (by && dy) return by[1] + " – " + dy[1]; if (by) return "ur. " + by[1]; if (dy) return "zm. " + dy[1]; return "";
+        }
+        function gName(g) { return g.name || (g.persons.length ? "Grób: " + g.persons.slice(0, 2).map(function (id) { return byId[id].name; }).join(", ") : "Grób"); }
+        function locText(g) { return [g.sector && "sektor " + g.sector, g.row && "rząd " + g.row, g.number && "nr " + g.number].filter(Boolean).join(", "); }
+        function names(g) { return g.persons.map(function (id) { return byId[id].name; }).join(", "); }
+
+        /* ---------- lista ---------- */
+        var cems = {};
+        graves.forEach(function (g) { if (g.cemetery) cems[g.cemetery] = 1; });
+        Object.keys(cems).sort(function (a, b) { return a.localeCompare(b, "pl"); }).forEach(function (c) { var o = el("option", "", c); o.value = c; $("cemSel").appendChild(o); });
+        if (Object.keys(cems).length < 2) $("cemSel").hidden = true;
+
+        var persons = [];                                    // osoby wybrane w wyszukiwarce osób (grób musi zawierać którąkolwiek z nich)
+        function render() {
+            var q = fold($("q").value.trim()), cem = $("cemSel").value, grid = $("grid"); grid.innerHTML = "";
+            var list = graves.filter(function (g) {
+                if (cem && g.cemetery !== cem) return false;
+                if (persons.length && !g.persons.some(function (id) { return persons.indexOf(id) !== -1; })) return false;
+                return !q || fold([gName(g), g.cemetery, g.address, g.desc].join(" ")).indexOf(q) !== -1;
+            });
+            $("cnt").textContent = graves.length ? "Wyświetlono: " + list.length + " z " + graves.length : "";
+            $("empty").hidden = list.length > 0;
+            $("empty").textContent = graves.length ? "Brak grobów pasujących do wyszukiwania." : "Nie dodano jeszcze żadnych grobów.";
+            list.forEach(function (g) {
+                var c = el("button", "gcard"); c.type = "button";
+                var ph = el("div", "ph"); if (g.photos[0]) ph.appendChild(img(g.photos[0], 600)); else ph.textContent = "brak zdjęcia";
+                c.appendChild(ph);
+                var bd = el("div", "bd"); bd.appendChild(el("h3", "", gName(g)));
+                if (g.cemetery) bd.appendChild(el("div", "cem", g.cemetery));
+                if (g.persons.length) bd.appendChild(el("div", "who", names(g)));
+                if (locText(g)) bd.appendChild(el("div", "loc", locText(g)));
+                c.appendChild(bd); c.addEventListener("click", function () { openGrave(g, true); });
+                grid.appendChild(c);
+            });
+            var box = $("active"); box.innerHTML = ""; box.hidden = !persons.length;
+            persons.forEach(function (id) {
+                var p = byId[id], f = el("span", "pf", p.name); f.style.setProperty("--c", dotColor(p));
+                var x = el("button", "", "×"); x.type = "button"; x.setAttribute("aria-label", "Usuń filtr: " + p.name);
+                x.addEventListener("click", function () { persons.splice(persons.indexOf(id), 1); render(); });
+                f.appendChild(x); box.appendChild(f);
+            });
+        }
+        $("q").addEventListener("input", render); $("cemSel").addEventListener("change", render);
+
+        /* ---------- wyszukiwarka osób (podpowiedzi jak w galerii) ---------- */
+        var searchInput = $("pq"), searchList = $("searchList"), searchX = $("searchX");
+        var sq = { q: "", results: [], active: -1, toks: [] };
+        var graveCount = {};
+        graves.forEach(function (g) { g.persons.forEach(function (id) { graveCount[id] = (graveCount[id] || 0) + 1; }); });
+        var searchable = everyone.filter(function (p) { return graveCount[p.id] && byId[p.id]; });
+        function initialsOf(name) { var parts = name.split(/\s+/); return (parts[0].charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : "")).toUpperCase(); }
+        function searchPeople(q) {
+            var f = fold(q).trim(), toks = f.split(/\s+/).filter(Boolean);
+            if (f.replace(/\s/g, "").length < 2) return [];
+            var out = [];
+            searchable.forEach(function (p) {
+                var words = fold(p.name + " " + (p.maiden || "")).split(/[^a-z0-9]+/).filter(Boolean), score = 0, ok = true;
+                for (var i = 0; i < toks.length && ok; i++) {
+                    var best = -1;
+                    for (var j = 0; j < words.length; j++) { if (words[j] === toks[i]) best = Math.max(best, 3); else if (words[j].indexOf(toks[i]) === 0) best = Math.max(best, 2); }
+                    if (best < 0) ok = false; else score += best;
+                }
+                if (ok) out.push({ p: p, score: score });
+            });
+            out.sort(function (a, b) { return (b.score - a.score) || a.p.name.localeCompare(b.p.name, "pl"); });
+            return out;
+        }
+        function highlightInto(node, text, toks) {
+            var f = fold(text);
+            if (f.length !== text.length) { node.textContent = text; return; }
+            var marks = [];
+            toks.forEach(function (t) {
+                var re = new RegExp("(^|[^a-z0-9])" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), m = re.exec(f), idx = m ? m.index + m[1].length : f.indexOf(t);
+                if (idx >= 0) marks.push([idx, idx + t.length]);
+            });
+            marks.sort(function (a, b) { return a[0] - b[0]; });
+            var merged = [];
+            marks.forEach(function (r) { var l = merged[merged.length - 1]; if (l && r[0] <= l[1]) l[1] = Math.max(l[1], r[1]); else merged.push(r.slice()); });
+            var pos = 0;
+            merged.forEach(function (r) {
+                if (r[0] > pos) node.appendChild(document.createTextNode(text.slice(pos, r[0])));
+                var mk = document.createElement("mark"); mk.textContent = text.slice(r[0], r[1]); node.appendChild(mk); pos = r[1];
+            });
+            if (pos < text.length) node.appendChild(document.createTextNode(text.slice(pos)));
+        }
+        function openSearchList() { searchList.hidden = false; searchInput.setAttribute("aria-expanded", "true"); }
+        function closeSearchList() { searchList.hidden = true; searchInput.setAttribute("aria-expanded", "false"); }
+        function setSearchActive(i, scroll) {
+            sq.active = i;
+            [].forEach.call(searchList.querySelectorAll(".sr-item"), function (it) {
+                var on = Number(it.getAttribute("data-i")) === i;
+                it.classList.toggle("active", on); it.setAttribute("aria-selected", on ? "true" : "false");
+                if (on) { searchInput.setAttribute("aria-activedescendant", it.id); if (scroll) it.scrollIntoView({ block: "nearest" }); }
+            });
+        }
+        function plOsoba(n) { var a = n % 10, b = n % 100; return n === 1 ? "osoba" : (a >= 2 && a <= 4 && !(b >= 12 && b <= 14)) ? "osoby" : "osób"; }
+        function plGrob(n) { var a = n % 10, b = n % 100; return n === 1 ? "grób" : (a >= 2 && a <= 4 && !(b >= 12 && b <= 14)) ? "groby" : "grobów"; }
+        function renderSearchList() {
+            var q = searchInput.value.trim(), n = sq.results.length;
+            searchList.innerHTML = "";
+            if (!q) { closeSearchList(); return; }
+            if (fold(q).replace(/\s/g, "").length < 2) searchList.appendChild(el("div", "sr-empty", "Wpisz co najmniej 2 litery."));
+            else if (!n) searchList.appendChild(el("div", "sr-empty", "Brak pochowanych osób pasujących do „" + q + "”."));
+            else {
+                var shownN = Math.min(n, 50), head = el("div", "sr-head");
+                head.appendChild(el("span", "", "Znaleziono: " + n + " " + plOsoba(n) + " · wybierz, by pokazać grób"));
+                searchList.appendChild(head);
+                sq.results.slice(0, shownN).forEach(function (r, i) {
+                    var p = r.p, it = el("div", "sr-item" + (i === sq.active ? " active" : ""));
+                    it.id = "sr-" + i; it.setAttribute("role", "option"); it.setAttribute("data-i", i);
+                    var av = el("div", "sr-av"); av.style.setProperty("--c", dotColor(p));
+                    if (p.photo) av.style.backgroundImage = 'url("' + p.photo.replace(/"/g, "%22") + '")';
+                    else { av.textContent = initialsOf(p.name); av.style.background = "#e4e7ec"; av.style.color = "#232a36"; }
+                    var t = el("div", "sr-t"), nm = el("span", "sr-n"); highlightInto(nm, p.name, sq.toks); t.appendChild(nm);
+                    t.appendChild(el("span", "sr-s", [life(p), p.maiden ? "z d. " + p.maiden : ""].filter(Boolean).join(" · ")));
+                    it.appendChild(av); it.appendChild(t);
+                    var c = graveCount[p.id]; it.appendChild(el("span", "sr-tag", c + " " + plGrob(c)));
+                    searchList.appendChild(it);
+                });
+            }
+            openSearchList();
+        }
+        function runSearch() {
+            sq.q = searchInput.value; sq.results = searchPeople(sq.q); sq.toks = fold(sq.q).split(/\s+/).filter(Boolean);
+            sq.active = sq.results.length ? 0 : -1; searchX.hidden = !sq.q; renderSearchList();
+        }
+        function clearSearch() { searchInput.value = ""; runSearch(); closeSearchList(); }
+        function chooseResult(i) {
+            var r = sq.results[i]; if (!r) return;
+            if (persons.indexOf(r.p.id) === -1) persons.push(r.p.id);
+            clearSearch(); searchInput.blur(); render();
+        }
+        searchInput.addEventListener("input", runSearch);
+        searchInput.addEventListener("focus", function () { if (searchInput.value.trim()) openSearchList(); });
+        searchInput.addEventListener("keydown", function (e) {
+            var n = Math.min(sq.results.length, 50);
+            if (e.key === "ArrowDown") { e.preventDefault(); if (searchList.hidden && searchInput.value.trim()) openSearchList(); if (n) setSearchActive((sq.active + 1) % n, true); }
+            else if (e.key === "ArrowUp") { e.preventDefault(); if (n) setSearchActive((sq.active - 1 + n) % n, true); }
+            else if (e.key === "Enter") { if (n && sq.active >= 0) { e.preventDefault(); chooseResult(sq.active); } }
+            else if (e.key === "Escape") { if (!searchList.hidden) { e.preventDefault(); closeSearchList(); } else if (searchInput.value) clearSearch(); }
+        });
+        searchList.addEventListener("mousedown", function (e) { e.preventDefault(); });
+        searchList.addEventListener("click", function (e) { var it = e.target.closest(".sr-item"); if (it) chooseResult(Number(it.getAttribute("data-i"))); });
+        searchList.addEventListener("mousemove", function (e) { var it = e.target.closest(".sr-item"); if (it) { var i = Number(it.getAttribute("data-i")); if (i !== sq.active) setSearchActive(i, false); } });
+        searchX.addEventListener("click", function () { clearSearch(); searchInput.focus(); });
+        document.addEventListener("click", function (e) { if (!e.target.closest("#search")) closeSearchList(); });
+
+        /* ---------- profil grobu ---------- */
+        var lastFocus = null, photoKeys = null;
+        function openGrave(g, push) {
+            lastFocus = document.activeElement; photoKeys = null;
+            var m = $("modal"); m.innerHTML = "";
+            var x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", "Zamknij"); x.addEventListener("click", closeGrave); m.appendChild(x);
+            var h = el("h2", "", gName(g)); h.id = "mTitle"; m.appendChild(h);
+            if (g.photos.length) {
+                var ph = el("div", "photos"), stage = el("div", "stage"), th = null, cur = 0, ctr = null;
+                function show(i) {
+                    var n = g.photos.length; cur = (i + n) % n;
+                    var im = img(g.photos[cur], 1200, "main"); im.loading = "eager";
+                    stage.replaceChild(im, stage.firstChild);
+                    if (ctr) ctr.textContent = (cur + 1) + " / " + n;
+                    if (th) [].forEach.call(th.children, function (c, k) { c.className = k === cur ? "on" : ""; });
+                }
+                var first = img(g.photos[0], 1200, "main"); first.loading = "eager"; stage.appendChild(first);
+                if (g.photos.length > 1) {
+                    var pv = el("button", "nav prev", "‹"), nx = el("button", "nav next", "›");
+                    pv.type = nx.type = "button"; pv.setAttribute("aria-label", "Poprzednie zdjęcie"); nx.setAttribute("aria-label", "Następne zdjęcie");
+                    pv.addEventListener("click", function () { show(cur - 1); }); nx.addEventListener("click", function () { show(cur + 1); });
+                    ctr = el("span", "ctr", "1 / " + g.photos.length);
+                    stage.appendChild(pv); stage.appendChild(nx); stage.appendChild(ctr);
+                    th = el("div", "thumbs");
+                    g.photos.forEach(function (k, i) { var t = img(k, 200); if (i === 0) t.className = "on"; t.addEventListener("click", function () { show(i); }); th.appendChild(t); });
+                    photoKeys = function (e) { if (e.key === "ArrowLeft") { show(cur - 1); e.preventDefault(); } else if (e.key === "ArrowRight") { show(cur + 1); e.preventDefault(); } };
+                }
+                ph.appendChild(stage); if (th) ph.appendChild(th);
+                m.appendChild(ph);
+            }
+            if (g.persons.length) {
+                m.appendChild(el("h4", "", g.persons.length > 1 ? "Pochowani w tym grobie" : "Pochowana osoba"));
+                var chips = el("div", "lb-chips"), hint = el("p", "lb-hint", "Kliknij osobę, aby zobaczyć ją w drzewie."), tb = null, sel = 0;
+                g.persons.forEach(function (id) {
+                    var p = byId[id], c = el("button", "lb-chip", p.name + (p.maiden ? " (z d. " + p.maiden + ")" : ""));
+                    c.type = "button"; c.setAttribute("aria-pressed", "false"); c.style.setProperty("--c", dotColor(p));
+                    if (life(p)) c.title = life(p);
+                    c.addEventListener("click", function () {
+                        sel = sel === id ? 0 : id;
+                        [].forEach.call(chips.children, function (x) { var on = x === c && sel === id; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on ? "true" : "false"); });
+                        hint.hidden = !!sel;
+                        if (tb) { tb.remove(); tb = null; }
+                        if (!sel) return;
+                        tb = el("a", "lb-treebtn"); tb.href = "index.html?osoba=" + id + "#drzewo";
+                        tb.appendChild(document.createTextNode("Pokaż osobę w drzewie "));
+                        tb.appendChild(el("small", "", "– " + p.name + (life(p) ? " (" + life(p) + ")" : "")));
+                        m.insertBefore(tb, hint.nextSibling);
+                    });
+                    chips.appendChild(c);
+                });
+                m.appendChild(chips); m.appendChild(hint);
+            }
+            if (g.cemetery || g.address || g.ecmUrl || g.gbUrl) {
+                m.appendChild(el("h4", "", "Cmentarz"));
+                var ad = el("div", "addr");
+                if (g.cemetery) ad.appendChild(el("strong", "", g.cemetery));
+                if (g.address) { ad.appendChild(document.createElement("br")); ad.appendChild(document.createTextNode(g.address)); }
+                if (g.ecmUrl) {
+                    ad.appendChild(document.createElement("br"));
+                    var b = el("a", "btn ecm", "Zobacz w eCmentarze ↗"); b.href = g.ecmUrl; b.target = "_blank"; b.rel = "noopener noreferrer"; ad.appendChild(b);
+                }
+                if (g.gbUrl) {                                   // tylko gdy grób jest w Grobonet i dodano link
+                    ad.appendChild(document.createElement("br"));
+                    var gb = el("a", "btn gb", "Zobacz w Grobonet ↗"); gb.href = g.gbUrl; gb.target = "_blank"; gb.rel = "noopener noreferrer"; ad.appendChild(gb);
+                }
+                m.appendChild(ad);
+            }
+            m.appendChild(el("h4", "", "Lokalizacja na cmentarzu"));
+            var t = el("table", "loc"), hr = el("tr"), vr = el("tr");
+            [["SEKTOR", g.sector], ["RZĄD", g.row], ["NUMER", g.number]].forEach(function (c) { hr.appendChild(el("th", "", c[0])); vr.appendChild(el("td", "", c[1] || "—")); });
+            t.appendChild(hr); t.appendChild(vr); m.appendChild(t);
+            if (g.lat !== null && g.lng !== null) {              // mapka OpenStreetMap z pinezką + nawigacja w Google Maps
+                m.appendChild(el("h4", "", "Mapa"));
+                var dx = 0.0010, dy = 0.0006, ll = g.lat.toFixed(6) + "," + g.lng.toFixed(6);
+                var mapBox = el("div", "mapbox"), fr = document.createElement("iframe");
+                fr.title = "Mapa: lokalizacja grobu"; fr.loading = "lazy"; fr.referrerPolicy = "no-referrer";
+                fr.src = "https://www.openstreetmap.org/export/embed.html?bbox=" + [g.lng - dx, g.lat - dy, g.lng + dx, g.lat + dy].map(function (n) { return n.toFixed(6); }).join("%2C") + "&layer=mapnik&marker=" + g.lat.toFixed(6) + "%2C" + g.lng.toFixed(6);
+                mapBox.appendChild(fr); m.appendChild(mapBox);
+                var nav = el("a", "btn nav-btn", "📍 Nawiguj do grobu ↗"); nav.href = "https://www.google.com/maps/dir/?api=1&destination=" + ll; nav.target = "_blank"; nav.rel = "noopener noreferrer";
+                var big = el("a", "maplink", "Większa mapa (OpenStreetMap)"); big.href = "https://www.openstreetmap.org/?mlat=" + g.lat.toFixed(6) + "&mlon=" + g.lng.toFixed(6) + "#map=19/" + ll.replace(",", "/"); big.target = "_blank"; big.rel = "noopener noreferrer";
+                var row = el("div", "maprow"); row.appendChild(nav); row.appendChild(big); m.appendChild(row);
+            }
+            if (g.desc) { m.appendChild(el("h4", "", "Opis")); m.appendChild(el("p", "desc", g.desc)); }
+            $("ov").hidden = false; document.body.style.overflow = "hidden"; x.focus();
+            if (push) { try { history.replaceState(null, "", "#" + g.id); } catch (e) {} }
+        }
+        function closeGrave() {
+            $("ov").hidden = true; document.body.style.overflow = "";
+            try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+            if (lastFocus && lastFocus.focus) lastFocus.focus();
+        }
+        $("ov").addEventListener("click", function (e) { if (e.target === $("ov")) closeGrave(); });
+        document.addEventListener("keydown", function (e) { if ($("ov").hidden) return; if (e.key === "Escape") closeGrave(); else if (photoKeys) photoKeys(e); });
+        function fromHash() {
+            var id = (location.hash || "").slice(1);
+            for (var i = 0; i < graves.length; i++) if (graves[i].id === id) { openGrave(graves[i], false); return; }
+        }
+        window.addEventListener("hashchange", function () { if (location.hash) fromHash(); else if (!$("ov").hidden) closeGrave(); });
+        render(); fromHash();
+    });
+    </script>
+    <script>
+    /* Efekt paralaksy: tło przesuwa się wolniej niż treść strony.
+       PREDKOSC: 0 = tło stoi w miejscu, 1 = tło przewija się tak samo szybko jak treść.
+       Przy ustawieniu systemowym „ogranicz ruch” (lub wyłączonym JavaScript) tło po prostu przewija się razem ze stroną. */
+    (function () {
+        var PREDKOSC = 0.4;
+        var layer = document.getElementById("parallaxBg");
+        if (!layer || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+        var root = document.documentElement, maxScroll = 0, ticking = false;
+
+        function update() {
+            ticking = false;
+            var y = Math.min(Math.max(window.pageYOffset || 0, 0), maxScroll);
+            layer.style.transform = "translate3d(0," + (-y * PREDKOSC).toFixed(1) + "px,0)";
+        }
+        function measure() {
+            var vh = window.innerHeight;
+            maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - vh);
+            layer.style.height = Math.ceil(vh + maxScroll * PREDKOSC) + "px";   // warstwa pokrywa cały zakres przewijania
+            update();
+        }
+        function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+
+        root.classList.add("parallax-on");
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", measure);
+        window.addEventListener("load", measure);
+        if (window.ResizeObserver) new ResizeObserver(measure).observe(document.body);
+        measure();
+    })();
+    </script>
+</body>
+</html>

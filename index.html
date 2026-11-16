@@ -601,6 +601,21 @@
         .adm-help ol { margin: 0.5rem 0 0; padding-left: 1.3rem; }
         .g-addbox { margin: 0.8rem 0; padding: 0.8rem; background: #f8f9fa; border: 1px dashed #cfd4dc; border-radius: 8px; }
         .lib-info { margin: 0.6rem 0 0.4rem; font: 0.82rem sans-serif; color: var(--muted); }
+        .gr-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
+        .gr-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.3rem 0.25rem 0.7rem; border: 1px solid #cfd4dc; border-radius: 999px; background: #fff; font: 0.85rem sans-serif; }
+        .gr-chip button { border: 0; background: #eef0f3; border-radius: 50%; width: 20px; height: 20px; line-height: 18px; cursor: pointer; color: #475467; }
+        .gr-res { margin-top: 0.3rem; border: 1px solid #cfd4dc; border-radius: 8px; background: #fff; max-height: 220px; overflow: auto; }
+        .gr-res button { display: block; width: 100%; text-align: left; padding: 0.45rem 0.7rem; border: 0; border-bottom: 1px solid #eef0f3; background: #fff; font: 0.88rem sans-serif; cursor: pointer; }
+        .gr-res button:hover { background: #f5f6f8; }
+        .gr-res small { color: #667085; margin-left: 0.4rem; }
+        .gr-slots { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .gr-slot { position: relative; width: 110px; height: 82px; border: 1px dashed #cfd4dc; border-radius: 8px; background: #f1f3f6 center / cover no-repeat; font: 0.75rem sans-serif; color: #98a2b3; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .gr-slot.has { border-style: solid; }
+        .gr-slot .x { position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.6); color: #fff; cursor: pointer; line-height: 20px; }
+        .gr-slot .cover { position: absolute; left: 3px; bottom: 3px; padding: 0 6px; border-radius: 4px; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 0.7rem; }
+        .gr-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 0.4rem; max-height: 260px; overflow: auto; margin-top: 0.6rem; padding: 0.5rem; border: 1px solid #e1e4e8; border-radius: 8px; background: #fff; }
+        .gr-pick img { width: 100%; height: 72px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; background: #eef1f5; }
+        .gr-pick img.sel { border-color: var(--accent); }
         .g-thumb { width: 64px; height: 48px; object-fit: cover; border-radius: 4px; background: #eef1f5; display: block; }
         .adm-table td input { width: 100%; font: 0.85rem sans-serif; padding: 0.3rem 0.45rem; border: 1px solid #cfd4dc; border-radius: 6px; }
         .adm-table td input.g-year { width: 72px; }
@@ -783,6 +798,14 @@
         .fact dd { margin: 0; text-align: right; font-weight: 600; }
         .fact dd small { display: block; font-weight: normal; color: var(--muted); font-size: 0.78rem; }
         .pbio { margin: 1rem 0 0; font: 0.95rem/1.6 Georgia, serif; }
+        .pgrave { margin-top: 1.2rem; }
+        .pgrave h4 { margin: 0 0 0.5rem; font-size: 0.78rem; font-weight: 600; color: var(--muted); letter-spacing: 0.4px; }
+        .pgrave-a { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.6rem; margin-bottom: 0.5rem; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); text-decoration: none; transition: box-shadow 0.15s, border-color 0.15s; }
+        .pgrave-a:hover, .pgrave-a:focus-visible { border-color: var(--ink); box-shadow: 0 4px 12px rgba(20, 30, 50, 0.15); outline: none; }
+        .pgrave-a .im { flex: none; width: 56px; height: 56px; border-radius: 8px; background: #eef1f5 center / cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .pgrave-a .tx { min-width: 0; flex: 1; font: 0.82rem/1.35 sans-serif; color: var(--muted); }
+        .pgrave-a .tx b { display: block; font: 600 0.92rem/1.3 sans-serif; color: var(--ink); }
+        .pgrave-a .go { flex: none; font: 600 0.82rem sans-serif; color: var(--accent); white-space: nowrap; }
         .pgal { margin-top: 1.2rem; }
         .pgal h4 { margin: 0 0 0.5rem; font-size: 0.78rem; font-weight: 600; color: var(--muted); letter-spacing: 0.4px; }
         .pgal-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
@@ -956,6 +979,7 @@
         <a class="tree-link" href="index.html?widok=drzewo">Drzewo genealogiczne</a>
         <a href="biografie.html">Biografie</a>
         <a href="galeria.html">Galeria</a>
+        <a href="groby.html">Groby</a>
         <a href="projekt.html">O projekcie</a>
         <a href="kontakt.html">Kontakt</a>
     </nav>
@@ -982,6 +1006,7 @@
                 <button type="button" class="sbtn primary" id="abAdd">+ Dodaj osobę</button>
                 <button type="button" class="sbtn" id="abList">Lista osób</button>
                 <button type="button" class="sbtn" id="abGallery">Galeria</button>
+                <button type="button" class="sbtn" id="abDiff" title="Pokazuje, co masz w panelu administratora, a czego brakuje w opublikowanym pliku dane.js">Porównaj z opublikowaną</button>
                 <button type="button" class="sbtn" id="abExport">Eksportuj dane (dane.js)</button>
                 <button type="button" class="sbtn" id="abExit">Wyjdź z trybu</button>
                 <span class="dirty" id="abDirty" hidden>● zmiany nie są jeszcze wyeksportowane</span>
@@ -1149,6 +1174,7 @@
             <dl class="facts" id="pFacts"></dl>
             <p class="pbio" id="pBio"></p>
             <div class="pgal" id="pGal" hidden></div>
+            <div class="pgrave" id="pGrave" hidden></div>
             <div class="relatives" id="pRelatives"></div>
             <div class="adm-actions admin-only" id="pAdmin">
                 <h4>Administrator</h4>
@@ -1182,6 +1208,7 @@
                 <div class="adm-tabs" id="admTabs">
                     <button type="button" class="tab active" id="tabPeople">Osoby</button>
                     <button type="button" class="tab" id="tabGallery">Galeria</button>
+                    <button type="button" class="tab" id="tabGraves">Groby</button>
                 </div>
 
                 <div id="admList">
@@ -1256,6 +1283,69 @@
                         <table class="adm-table">
                             <thead><tr><th>Zdjęcie</th><th>Nazwa i data</th><th>Album</th><th>Osoby</th><th></th></tr></thead>
                             <tbody id="gRows"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admGraves" hidden>
+                    <p class="adm-note">Groby to osobna lista (nie trafia do galerii). Grób nie jest przypisany do jednej osoby – wybierasz wszystkie osoby w nim pochowane. Zdjęcia grobów bierzesz z <b>osobnego folderu</b> na Dysku Google. Po zmianach kliknij „Eksportuj dane” i wgraj nowy plik <b>dane.js</b>.</p>
+                    <div class="fgrid">
+                        <div class="fld full">
+                            <label for="grFolder">Folder ze zdjęciami grobów (Dysk Google)</label>
+                            <input type="text" id="grFolder" placeholder="https://drive.google.com/drive/folders/…" autocomplete="off">
+                        </div>
+                        <div class="fld full">
+                            <label for="grKey">Klucz API Dysku Google (ten sam co w zakładce „Galeria”; zostaje tylko w tej przeglądarce)</label>
+                            <input type="text" id="grKey" placeholder="AIza…" autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+                    <div class="adm-toolbar" style="margin-top:.8rem">
+                        <button type="button" class="sbtn primary" id="grNew">+ Dodaj grób</button>
+                        <button type="button" class="sbtn" id="grLoad">Wczytaj zdjęcia z folderu</button>
+                        <span class="g-status" id="grStatus" role="status"></span>
+                    </div>
+                    <p class="lib-info">Folder musi być udostępniony („Każda osoba mająca link” – Przeglądający). „Wczytaj zdjęcia z folderu” pobiera tylko listę do wyboru – nic nie trafia do galerii. Bez klucza API możesz wkleić link do zdjęcia ręcznie.</p>
+
+                    <div class="g-addbox" id="grEditor" hidden>
+                        <div class="fgrid">
+                            <div class="fld full"><label for="grName">Nazwa grobu (np. „Grób rodziny Tutejów”)</label><input type="text" id="grName" maxlength="160" autocomplete="off"></div>
+                            <div class="fld"><label for="grCem">Cmentarz</label><input type="text" id="grCem" maxlength="160" list="grCemList" placeholder="np. Cmentarz komunalny w Wieliczce" autocomplete="off"><datalist id="grCemList"></datalist></div>
+                            <div class="fld"><label for="grAddr">Adres cmentarza (opcjonalnie)</label><input type="text" id="grAddr" maxlength="200" placeholder="np. ul. Cmentarna, Wieliczka" autocomplete="off"></div>
+                            <div class="fld full"><label for="grEcm">Link do cmentarza w eCmentarze</label><input type="text" id="grEcm" maxlength="300" placeholder="https://www.ecmentarze.pl/cmentarze/cmentarz-komunalny-wieliczka" autocomplete="off"></div>
+                            <div class="fld full"><label for="grGb">Link do tego grobu w Grobonet (opcjonalnie – przycisk „Zobacz w Grobonet” pojawi się tylko, gdy go wpiszesz)</label><input type="text" id="grGb" maxlength="300" placeholder="https://grobonet.com/…" autocomplete="off"></div>
+                            <div class="fld full"><label for="grCoord">Współrzędne grobu (opcjonalnie – pod tabelą pojawi się mapka z pinezką i przycisk „Nawiguj do grobu”)</label><input type="text" id="grCoord" maxlength="60" placeholder="np. 49.987654, 20.064321" autocomplete="off"><small class="lib-info">W Google Maps kliknij prawym przyciskiem w miejsce grobu i kliknij pierwszą pozycję w menu (liczby) – skopiują się współrzędne, wklej je tutaj. Na telefonie: przytrzymaj palec na mapie.</small></div>
+                            <div class="fld"><label for="grSector">Sektor</label><input type="text" id="grSector" maxlength="40" autocomplete="off"></div>
+                            <div class="fld"><label for="grRow">Rząd</label><input type="text" id="grRow" maxlength="40" autocomplete="off"></div>
+                            <div class="fld"><label for="grNum">Numer</label><input type="text" id="grNum" maxlength="40" autocomplete="off"></div>
+                            <div class="fld full"><label for="grDesc">Opis (opcjonalnie)</label><textarea id="grDesc" rows="3" maxlength="3000"></textarea></div>
+                            <div class="fld full">
+                                <label for="grPSearch">Osoby pochowane w tym grobie</label>
+                                <div class="gr-chips" id="grPChips"></div>
+                                <input type="search" id="grPSearch" placeholder="Wpisz imię lub nazwisko, aby dodać osobę…" autocomplete="off">
+                                <div class="gr-res" id="grPRes" hidden></div>
+                            </div>
+                            <div class="fld full">
+                                <label>Zdjęcia grobu (do 3 – pierwsze jest zdjęciem na kafelku)</label>
+                                <div class="gr-slots" id="grSlots"></div>
+                                <div class="adm-toolbar" style="margin-top:.5rem">
+                                    <button type="button" class="sbtn" id="grPickBtn">Wybierz z folderu…</button>
+                                    <input type="text" id="grLink" placeholder="albo wklej link do zdjęcia z Dysku Google" autocomplete="off" style="flex:1;min-width:200px">
+                                    <button type="button" class="sbtn" id="grLinkAdd">Dodaj link</button>
+                                </div>
+                                <div class="gr-pick" id="grPick" hidden></div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top:.8rem;padding-top:.8rem">
+                            <button type="button" class="sbtn primary" id="grSave">Zapisz grób</button>
+                            <button type="button" class="sbtn" id="grCancel">Anuluj</button>
+                        </div>
+                    </div>
+
+                    <p class="lib-info"><span id="grInfo"></span></p>
+                    <div class="adm-table-wrap">
+                        <table class="adm-table">
+                            <thead><tr><th>Zdjęcie</th><th>Grób i cmentarz</th><th>Pochowani</th><th></th></tr></thead>
+                            <tbody id="grRows"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1618,7 +1708,7 @@
                     return rec;
                 }
                 make(SRC, "male");
-                return { version: 1, rootId: 1, nextId: nid + 1, people: people, marriages: marriages, gallery: { folderUrl: DEFAULT_FOLDER_URL, items: [] } };
+                return { version: 1, rootId: 1, nextId: nid + 1, people: people, marriages: marriages, gallery: { folderUrl: DEFAULT_FOLDER_URL, items: [] }, graves: { folderUrl: DEFAULT_GRAVES_FOLDER, items: [] } };
             }
 
             /* ---------- czyszczenie i sprawdzanie danych (seed, dane.js, import, kopia lokalna) ---------- */
@@ -1646,6 +1736,7 @@
                 return s.slice(0, 300);
             }
             var DEFAULT_FOLDER_URL = "https://drive.google.com/drive/folders/1y1DfEpl5tj8DigdmCUcrGNjYY3lA1Dy7";
+            var DEFAULT_GRAVES_FOLDER = "https://drive.google.com/drive/folders/1EK0JHYQhBmZdr6V-StT-O8kTgVE_sxBe";
             function driveFolderId(url) {
                 var m = /\/folders\/([A-Za-z0-9_-]{10,})/.exec(url || "") || /[?&]id=([A-Za-z0-9_-]{10,})/.exec(url || "");
                 return m ? m[1] : "";
@@ -1678,6 +1769,33 @@
                         id: id, url: url, title: clean(it.title, 160), album: clean(it.album, 80),
                         date: clean(it.date != null ? it.date : it.year, 30), dateEst: !!it.dateEst, desc: clean(it.desc, 2000),
                         people: ppl, boxes: cleanBoxes(it.boxes, ppl), manual: !!it.manual
+                    });
+                });
+                return out;
+            }
+            /* groby: osobna lista (nie galeria), każdy grób może mieć kilka osób i do 3 zdjęć z osobnego folderu na Dysku */
+            function coordNum(v, max) { var n = typeof v === "number" ? v : parseFloat(v); return isFinite(n) && Math.abs(n) <= max && v !== "" && v !== null ? Math.round(n * 1e7) / 1e7 : null; }
+            function normGraves(g) {
+                var out = { folderUrl: DEFAULT_GRAVES_FOLDER, items: [] };
+                if (!g || typeof g !== "object") return out;
+                if (g.folderUrl !== undefined) out.folderUrl = safeFolderUrl(g.folderUrl);
+                var used = {}, n = 0;
+                (Array.isArray(g.items) ? g.items : []).slice(0, 500).forEach(function (it) {
+                    if (!it || typeof it !== "object") return;
+                    var id = /^g\d{1,6}$/.test(it.id || "") && !used[it.id] ? it.id : "";
+                    if (!id) { do { n++; id = "g" + n; } while (used[id]); }
+                    used[id] = 1; var m = /^g(\d+)$/.exec(id); if (m && +m[1] > n) n = +m[1];
+                    var photos = [];
+                    (Array.isArray(it.photos) ? it.photos : []).forEach(function (k) {
+                        k = typeof k === "string" ? k.trim() : "";
+                        var key = /^[A-Za-z0-9_-]{10,80}$/.test(k) ? k : safeUrl(k);
+                        if (key && photos.indexOf(key) === -1 && photos.length < 3) photos.push(key);
+                    });
+                    var persons = (Array.isArray(it.persons) ? it.persons : []).map(function (x) { return parseInt(x, 10); })
+                        .filter(function (x, i, a) { return x > 0 && a.indexOf(x) === i; }).slice(0, 40);
+                    out.items.push({
+                        id: id, name: clean(it.name, 160), cemetery: clean(it.cemetery, 160), ecmUrl: safeUrl(it.ecmUrl), gbUrl: safeUrl(it.gbUrl), address: clean(it.address, 200),
+                        sector: clean(it.sector, 40), row: clean(it.row, 40), number: clean(it.number, 40), lat: coordNum(it.lat, 90), lng: coordNum(it.lng, 180), persons: persons, photos: photos, desc: clean(it.desc, 3000)
                     });
                 });
                 return out;
@@ -1736,7 +1854,9 @@
                     if (!people.length) return null;
                     var gallery = raw.gallery === undefined ? { folderUrl: DEFAULT_FOLDER_URL, items: [] } : normGallery(raw.gallery);
                     gallery.items.forEach(function (it) { it.people = it.people.filter(function (pid) { return ids[pid]; }); });
-                    return { version: 1, rootId: root, nextId: max + 1, people: people, marriages: marriages, gallery: gallery };
+                    var graves = normGraves(raw.graves);
+                    graves.items.forEach(function (it) { it.persons = it.persons.filter(function (pid) { return ids[pid]; }); });
+                    return { version: 1, rootId: root, nextId: max + 1, people: people, marriages: marriages, gallery: gallery, graves: graves };
                 } catch (e) { return null; }
             }
 
@@ -2357,7 +2477,7 @@
             var raw = {
                 version: DATA.version, rootId: DATA.rootId, nextId: DATA.nextId,
                 people: DATA.people.filter(function (p) { return !(p.living && ids[p.id]); }).concat(sec.people),
-                marriages: DATA.marriages.slice(), gallery: DATA.gallery
+                marriages: DATA.marriages.slice(), gallery: DATA.gallery, graves: DATA.graves
             };
             var seen = {};
             raw.marriages.forEach(function (m) { seen[m.a + "-" + m.b] = 1; });
@@ -2759,6 +2879,25 @@
             row.appendChild(more);
             box.appendChild(row);
         }
+        /* „Grób” w panelu osoby: link do profilu każdego grobu, w którym jest pochowana (groby.html#gN) */
+        function renderPanelGrave(p) {
+            var box = $("pGrave"); box.innerHTML = "";
+            var list = DATA.graves.items.filter(function (g) { return g.persons.indexOf(p.id) !== -1; });
+            box.hidden = !list.length;
+            if (!list.length) return;
+            box.appendChild(el("h4", null, list.length > 1 ? "Groby" : "Grób"));
+            list.forEach(function (g) {
+                var a = el("a", "pgrave-a"), im = el("span", "im"), tx = el("span", "tx"), k = g.photos[0];
+                a.href = "groby.html#" + g.id;
+                if (k && /^[A-Za-z0-9_-]{10,80}$/.test(k)) im.style.backgroundImage = 'url("https://drive.google.com/thumbnail?id=' + k + '&sz=w160")';
+                else if (k) im.style.backgroundImage = 'url("' + k.replace(/"/g, "%22") + '")';
+                else im.textContent = "🪦";
+                tx.appendChild(el("b", null, g.name || g.cemetery || "Grób"));
+                tx.appendChild(document.createTextNode(g.name && g.cemetery ? g.cemetery : ""));
+                a.appendChild(im); a.appendChild(tx); a.appendChild(el("span", "go", "Zobacz grób →"));
+                box.appendChild(a);
+            });
+        }
         function fillPanel(p) {
             var me = p === M.root;
             $("panelTop").style.borderTopColor = me ? "#2d3544" : softColor(p, 50);
@@ -2801,6 +2940,7 @@
 
             $("pBio").textContent = p.bio || "";
             renderPanelGallery(p);
+            renderPanelGrave(p);
             $("paFather").hidden = !!p.father;
             $("paMother").hidden = !!p.mother;
 
@@ -3935,6 +4075,7 @@
 
             $("admList").hidden = true;
             $("admGallery").hidden = true;
+            $("admGraves").hidden = true;
             $("admPhoto").hidden = true;
             $("admTabs").hidden = true;
             $("admForm").hidden = false;
@@ -4046,6 +4187,7 @@
             DATA.people.forEach(function (x) { if (x.fid === id) x.fid = null; if (x.mid === id) x.mid = null; });
             DATA.marriages = DATA.marriages.filter(function (m) { return m.a !== id && m.b !== id; });
             DATA.gallery.items.forEach(function (it) { it.people = (it.people || []).filter(function (pid) { return pid !== id; }); });
+            DATA.graves.items.forEach(function (it) { it.persons = (it.persons || []).filter(function (pid) { return pid !== id; }); });
             if (state.selId === id) closePanel();
             commit();
         }
@@ -4083,6 +4225,29 @@
         $("abAdd").addEventListener("click", function () { openForm({}); });
         $("abList").addEventListener("click", showList);
         $("abExport").addEventListener("click", exportData);
+        $("abDiff").addEventListener("click", function () {      // czego brakuje na stronie publicznej (dane.js na serwerze), a jest w panelu administratora
+            var pub = window.FAMILY_DATA && window.FAMILY_DATA.people;
+            if (!pub) { alert("Na serwerze nie ma pliku dane.js – strona publiczna korzysta z danych wbudowanych."); return; }
+            var pm = {}; pub.forEach(function (p) { pm[p.id] = p; });
+            var missing = [], noPhoto = [], other = [], same = 0, absent = 0;
+            DATA.people.forEach(function (p) {
+                var q = pm[p.id];
+                if (!q) { absent++; if (p.photo) missing.push(p.name); return; }
+                if (q.living && !p.living) return;                  // pusty kafelek żyjącego – to normalne
+                if (p.photo && !q.photo) noPhoto.push(p.name);
+                else if (p.photo && q.photo && p.photo !== q.photo) other.push(p.name);
+                else same++;
+            });
+            var lines = [];
+            if (absent > DATA.people.length * 0.3) lines.push("UWAGA: " + absent + " osób z panelu nie ma w opublikowanym pliku (inne numery ID). Opublikowany dane.js pochodzi z innego zestawu danych niż Twoje zmiany lokalne – np. po imporcie GEDCOM albo ze starszego eksportu.\n");
+            lines.push("Zdjęcia są w panelu, a NIE ma ich na stronie publicznej: " + (noPhoto.length + missing.length));
+            noPhoto.concat(missing).slice(0, 30).forEach(function (n) { lines.push("   • " + n); });
+            if (noPhoto.length + missing.length > 30) lines.push("   … i " + (noPhoto.length + missing.length - 30) + " więcej");
+            if (other.length) lines.push("\nInne zdjęcie niż opublikowane: " + other.length + " (" + other.slice(0, 8).join(", ") + (other.length > 8 ? "…" : "") + ")");
+            lines.push("\nOsób bez różnic w zdjęciach: " + same);
+            lines.push((noPhoto.length + missing.length + other.length) ? "\nCo zrobić: kliknij „Eksportuj dane”, zaszyfruj plik (szyfruj.js) i wgraj nowy dane.js na GitHuba." : "\nZdjęcia w panelu i na serwerze są takie same.");
+            alert(lines.join("\n"));
+        });
         $("abExit").addEventListener("click", exitAdmin);
         $("admClose").addEventListener("click", closeModal);
         modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
@@ -4278,9 +4443,11 @@
             admTab = tab;
             $("admList").hidden = tab !== "people";
             $("admGallery").hidden = tab !== "gallery";
+            $("admGraves").hidden = tab !== "graves";
             $("tabPeople").classList.toggle("active", tab === "people");
             $("tabGallery").classList.toggle("active", tab === "gallery");
-            if (tab === "gallery") renderAdmGallery(); else refreshList();
+            $("tabGraves").classList.toggle("active", tab === "graves");
+            if (tab === "gallery") renderAdmGallery(); else if (tab === "graves") renderAdmGraves(); else refreshList();
         }
         function gStatus(msg, kind) {
             var s = $("gStatus");
@@ -4571,7 +4738,7 @@
         function openPhotoEditor(item, list) {
             pe.list = list;
             pe.i = Math.max(0, list.indexOf(item));
-            ["admList", "admGallery", "admTabs", "admForm"].forEach(function (id) { $(id).hidden = true; });
+            ["admList", "admGallery", "admGraves", "admTabs", "admForm"].forEach(function (id) { $(id).hidden = true; });
             $("admPhoto").hidden = false;
             $("admTitle").textContent = "Opis zdjęcia";
             openModal();
@@ -4678,6 +4845,185 @@
                 gStatus(m, "err");
             }).then(function () { $("gSync").disabled = false; });
         }
+
+
+        /* ---------- panel administratora: groby ---------- */
+        var GR_FILES = null;                       // lista zdjęć z folderu grobów – tylko do wyboru w panelu (nie trafia do galerii ani do dane.js)
+        var grEdit = null;                         // { idx: -1 | numer, persons: [], photos: [] }
+        function grStatus(msg, kind) { var s = $("grStatus"); s.textContent = msg || ""; s.className = "g-status" + (kind ? " " + kind : ""); }
+        function grThumb(k, w) { return /^[A-Za-z0-9_-]{10,80}$/.test(k) ? "https://drive.google.com/thumbnail?id=" + k + "&sz=w" + w : k; }
+        function grLife(p) { return p.living ? "" : F.lifeYears(p); }
+        function renderAdmGraves() {
+            $("grFolder").value = DATA.graves.folderUrl || "";
+            $("grKey").value = lsGet(LS_GKEY) || "";
+            var items = DATA.graves.items, tb = $("grRows");
+            $("grInfo").textContent = items.length + " " + (items.length === 1 ? "grób" : (items.length % 10 >= 2 && items.length % 10 <= 4 && (items.length % 100 < 12 || items.length % 100 > 14) ? "groby" : "grobów"));
+            tb.innerHTML = "";
+            $("grCemList").innerHTML = "";
+            var seenC = {};
+            items.forEach(function (g, i) {
+                if (g.cemetery && !seenC[g.cemetery]) { seenC[g.cemetery] = 1; var o = document.createElement("option"); o.value = g.cemetery; $("grCemList").appendChild(o); }
+                var tr = document.createElement("tr"), td0 = el("td");
+                if (g.photos[0]) { var im = document.createElement("img"); im.className = "g-thumb"; im.alt = ""; im.loading = "lazy"; im.referrerPolicy = "no-referrer"; im.src = grThumb(g.photos[0], 160); td0.appendChild(im); }
+                tr.appendChild(td0);
+                var td1 = el("td"); td1.appendChild(el("strong", "", g.name || "(bez nazwy)")); td1.appendChild(document.createElement("br"));
+                td1.appendChild(el("span", "", (g.cemetery || "—") + (g.sector || g.row || g.number ? " · " + [g.sector && "sektor " + g.sector, g.row && "rząd " + g.row, g.number && "nr " + g.number].filter(Boolean).join(", ") : "")));
+                tr.appendChild(td1);
+                tr.appendChild(el("td", "", g.persons.map(function (id) { return M.byId[id] ? M.byId[id].name : ""; }).filter(Boolean).join(", ") || "—"));
+                var td3 = el("td", "acts");
+                function btn(t, title, fn, dis) { var b = el("button", "sbtn", t); b.type = "button"; b.title = title; b.disabled = !!dis; b.addEventListener("click", fn); td3.appendChild(b); }
+                btn("↑", "Przesuń wyżej", function () { var t = items[i]; items[i] = items[i - 1]; items[i - 1] = t; commit(); renderAdmGraves(); }, i === 0);
+                btn("↓", "Przesuń niżej", function () { var t = items[i]; items[i] = items[i + 1]; items[i + 1] = t; commit(); renderAdmGraves(); }, i === items.length - 1);
+                btn("Edytuj", "Edytuj grób", function () { openGrEditor(i); });
+                btn("Usuń", "Usuń grób", function () { if (confirm("Usunąć grób „" + (g.name || g.cemetery || "bez nazwy") + "”?")) { items.splice(i, 1); commit(); renderAdmGraves(); } });
+                tr.appendChild(td3);
+                tb.appendChild(tr);
+            });
+        }
+        function renderGrEditorParts() {
+            var chips = $("grPChips"); chips.innerHTML = "";
+            grEdit.persons.forEach(function (id, i) {
+                var p = M.byId[id]; if (!p) return;
+                var c = el("span", "gr-chip", p.name + (grLife(p) ? " (" + grLife(p) + ")" : ""));
+                var x = el("button", "", "×"); x.type = "button"; x.title = "Usuń z grobu"; x.addEventListener("click", function () { grEdit.persons.splice(i, 1); renderGrEditorParts(); });
+                c.appendChild(x); chips.appendChild(c);
+            });
+            var slots = $("grSlots"); slots.innerHTML = "";
+            for (var i = 0; i < 3; i++) (function (i) {
+                var k = grEdit.photos[i], d = el("div", "gr-slot" + (k ? " has" : ""));
+                if (k) {
+                    d.style.backgroundImage = 'url("' + grThumb(k, 220).replace(/"/g, "%22") + '")';
+                    var x = el("button", "x", "×"); x.type = "button"; x.title = "Usuń zdjęcie"; x.addEventListener("click", function () { grEdit.photos.splice(i, 1); renderGrEditorParts(); renderGrPick(); });
+                    d.appendChild(x);
+                    if (i === 0) d.appendChild(el("span", "cover", "kafelek"));
+                } else d.textContent = "puste miejsce";
+                slots.appendChild(d);
+            })(i);
+        }
+        function renderGrPick() {
+            var box = $("grPick"); box.innerHTML = "";
+            if (!GR_FILES) return;
+            if (!GR_FILES.length) { box.appendChild(el("span", "lib-info", "W folderze nie znaleziono zdjęć.")); return; }
+            GR_FILES.forEach(function (f) {
+                var im = document.createElement("img"); im.alt = f.name; im.title = f.name; im.loading = "lazy"; im.referrerPolicy = "no-referrer"; im.src = grThumb(f.id, 160);
+                if (grEdit.photos.indexOf(f.id) !== -1) im.className = "sel";
+                im.addEventListener("click", function () {
+                    var at = grEdit.photos.indexOf(f.id);
+                    if (at !== -1) grEdit.photos.splice(at, 1);
+                    else if (grEdit.photos.length >= 3) { grStatus("Grób może mieć najwyżej 3 zdjęcia – najpierw usuń któreś.", "err"); return; }
+                    else grEdit.photos.push(f.id);
+                    renderGrEditorParts(); renderGrPick();
+                });
+                box.appendChild(im);
+            });
+        }
+        function openGrEditor(idx) {
+            var g = idx >= 0 ? DATA.graves.items[idx] : { name: "", cemetery: "", ecmUrl: "", gbUrl: "", lat: null, lng: null, address: "", sector: "", row: "", number: "", persons: [], photos: [], desc: "" };
+            grEdit = { idx: idx, persons: g.persons.slice(), photos: g.photos.slice() };
+            $("grName").value = g.name; $("grCem").value = g.cemetery; $("grAddr").value = g.address; $("grEcm").value = g.ecmUrl; $("grGb").value = g.gbUrl || ""; $("grCoord").value = g.lat !== null && g.lat !== undefined && g.lng !== null && g.lng !== undefined ? g.lat + ", " + g.lng : "";
+            $("grSector").value = g.sector; $("grRow").value = g.row; $("grNum").value = g.number; $("grDesc").value = g.desc;
+            $("grPSearch").value = ""; $("grPRes").hidden = true; $("grLink").value = ""; $("grPick").hidden = true;
+            renderGrEditorParts(); $("grEditor").hidden = false; $("grName").focus();
+            $("grEditor").scrollIntoView({ block: "nearest" });
+        }
+        function closeGrEditor() { grEdit = null; $("grEditor").hidden = true; }
+        function loadGrFolder() {
+            var fid = F.driveFolderId(DATA.graves.folderUrl), key = ($("grKey").value || "").trim();
+            if (!fid) { grStatus("Najpierw wpisz link do folderu ze zdjęciami grobów.", "err"); return Promise.resolve(); }
+            if (!key) { grStatus("Do wczytania listy potrzebny jest klucz API (jak w zakładce „Galeria”). Możesz też wkleić link do zdjęcia ręcznie.", "err"); return Promise.resolve(); }
+            lsSet(LS_GKEY, key); grStatus("Pobieram listę zdjęć…"); $("grLoad").disabled = true;
+            var found = [];
+            function page(id, depth, token) {
+                var url = "https://www.googleapis.com/drive/v3/files?q=" + encodeURIComponent("'" + id + "' in parents and trashed=false") +
+                    "&fields=" + encodeURIComponent("nextPageToken,files(id,name,mimeType)") + "&pageSize=1000&orderBy=name&supportsAllDrives=true&includeItemsFromAllDrives=true&key=" + encodeURIComponent(key) +
+                    (token ? "&pageToken=" + encodeURIComponent(token) : "");
+                return fetch(url).then(function (r) {
+                    return r.json().then(function (j) { if (!r.ok) { var e = new Error((j.error && j.error.message) || ("HTTP " + r.status)); e.status = r.status; throw e; } return j; });
+                }).then(function (j) {
+                    var subs = [];
+                    (j.files || []).forEach(function (f) {
+                        if (f.mimeType === "application/vnd.google-apps.folder") { if (depth < 2) subs.push(f); }
+                        else if (/^image\//.test(f.mimeType || "")) found.push({ id: f.id, name: f.name });
+                    });
+                    var next = j.nextPageToken ? page(id, depth, j.nextPageToken) : Promise.resolve();
+                    return next.then(function () { return subs.reduce(function (p, f) { return p.then(function () { return page(f.id, depth + 1, ""); }); }, Promise.resolve()); });
+                });
+            }
+            return page(fid, 0, "").then(function () {
+                GR_FILES = found; grStatus("Wczytano " + found.length + " " + plFoto(found.length) + " z folderu.", "ok");
+                if (grEdit) { $("grPick").hidden = false; renderGrPick(); }
+            }).catch(function (err) {
+                var m = err && err.message ? err.message : "";
+                if (err && err.status === 400) m = "Klucz API jest nieprawidłowy. (" + m + ")";
+                else if (err && err.status === 403) m = "Dostęp zabroniony – włącz „Google Drive API” dla klucza. (" + m + ")";
+                else if (err && err.status === 404) m = "Nie znaleziono folderu – sprawdź link i udostępnienie. (" + m + ")";
+                else if (!err || !err.status) m = "Nie udało się połączyć z Dyskiem Google. " + m;
+                grStatus(m, "err");
+            }).then(function () { $("grLoad").disabled = false; });
+        }
+        $("tabGraves").addEventListener("click", function () { showAdmTab("graves"); });
+        $("grNew").addEventListener("click", function () { openGrEditor(-1); });
+        $("grCancel").addEventListener("click", closeGrEditor);
+        $("grLoad").addEventListener("click", loadGrFolder);
+        $("grKey").addEventListener("change", function () { lsSet(LS_GKEY, this.value.trim()); });
+        $("grFolder").addEventListener("change", function () {
+            var v = this.value.trim(), clean = v ? F.safeFolderUrl(v) : "";
+            if (v && !clean) { alert("To nie wygląda na link do folderu Dysku Google (powinien zawierać „/folders/…”)."); this.value = DATA.graves.folderUrl || ""; return; }
+            DATA.graves.folderUrl = clean; GR_FILES = null; commit();
+        });
+        $("grCem").addEventListener("change", function () {            // ten sam cmentarz co w innym grobie: podpowiedz link i adres
+            var v = this.value.trim(); if (!v) return;
+            var other = DATA.graves.items.filter(function (g) { return g.cemetery === v && (g.ecmUrl || g.address); })[0];
+            if (other) { if (!$("grEcm").value) $("grEcm").value = other.ecmUrl; if (!$("grAddr").value) $("grAddr").value = other.address; }
+        });
+        $("grPickBtn").addEventListener("click", function () {
+            var box = $("grPick");
+            if (!box.hidden) { box.hidden = true; return; }
+            box.hidden = false;
+            if (!GR_FILES) loadGrFolder(); else renderGrPick();
+        });
+        $("grLinkAdd").addEventListener("click", function () {
+            var v = $("grLink").value.trim(); if (!v) return;
+            var id = F.driveFileId(v), key = id || F.safeUrl(v);
+            if (!key) { grStatus("To nie wygląda na link do zdjęcia z Dysku Google ani na adres https://…", "err"); return; }
+            if (grEdit.photos.indexOf(key) !== -1) { grStatus("To zdjęcie jest już dodane.", "err"); return; }
+            if (grEdit.photos.length >= 3) { grStatus("Grób może mieć najwyżej 3 zdjęcia.", "err"); return; }
+            grEdit.photos.push(key); $("grLink").value = ""; grStatus(""); renderGrEditorParts(); renderGrPick();
+        });
+        $("grPSearch").addEventListener("input", function () {
+            var q = fold(this.value.trim()), box = $("grPRes"); box.innerHTML = "";
+            if (!q) { box.hidden = true; return; }
+            var res = M.people.filter(function (p) { return !p.living && p.d && grEdit.persons.indexOf(p.id) === -1 && fold(p.name + " " + (p.maiden || "")).indexOf(q) !== -1; })
+                .sort(function (a, b) { return (a.d ? 0 : 1) - (b.d ? 0 : 1) || a.name.localeCompare(b.name, "pl"); }).slice(0, 12);
+            if (!res.length) { box.appendChild(el("div", "lib-info", "Nikogo nie znaleziono.")); box.hidden = false; return; }
+            res.forEach(function (p) {
+                var b = el("button", "", p.name); b.type = "button"; b.appendChild(el("small", "", grLife(p)));
+                b.addEventListener("click", function () { grEdit.persons.push(p.id); $("grPSearch").value = ""; box.hidden = true; renderGrEditorParts(); $("grPSearch").focus(); });
+                box.appendChild(b);
+            });
+            box.hidden = false;
+        });
+        $("grSave").addEventListener("click", function () {
+            var g = {
+                name: $("grName").value.trim(), cemetery: $("grCem").value.trim(), address: $("grAddr").value.trim(), ecmUrl: $("grEcm").value.trim(), gbUrl: $("grGb").value.trim(),
+                sector: $("grSector").value.trim(), row: $("grRow").value.trim(), number: $("grNum").value.trim(), desc: $("grDesc").value.trim(),
+                persons: grEdit.persons.slice(), photos: grEdit.photos.slice()
+            };
+            if (g.ecmUrl && !F.safeUrl(g.ecmUrl)) { alert("Link do eCmentarzy musi zaczynać się od https://"); return; }
+            var ct = $("grCoord").value.trim();
+            if (ct) {
+                var cm = /(-?\d{1,3}\.\d+)\s*[,;\s]\s*(-?\d{1,3}\.\d+)/.exec(ct), la = cm ? parseFloat(cm[1]) : NaN, ln = cm ? parseFloat(cm[2]) : NaN;
+                if (!cm || Math.abs(la) > 90 || Math.abs(ln) > 180) { alert("Nie rozpoznaję współrzędnych. Wpisz dwie liczby z kropką, np. 49.987654, 20.064321"); return; }
+                g.lat = la; g.lng = ln;
+            } else { g.lat = null; g.lng = null; }
+            if (g.gbUrl && !F.safeUrl(g.gbUrl)) { alert("Link do Grobonet musi zaczynać się od https://"); return; }
+            if (!g.name && !g.cemetery && !g.persons.length) { alert("Podaj co najmniej nazwę grobu, cmentarz albo osobę."); return; }
+            var items = DATA.graves.items;
+            if (grEdit.idx >= 0) g.id = items[grEdit.idx].id;
+            else { var mx = 0; items.forEach(function (x) { var m = /^g(\d+)$/.exec(x.id); if (m && +m[1] > mx) mx = +m[1]; }); g.id = "g" + (mx + 1); }
+            if (grEdit.idx >= 0) items[grEdit.idx] = g; else items.push(g);
+            closeGrEditor(); commit(); renderAdmGraves();
+        });
 
         $("tabPeople").addEventListener("click", function () { showAdmTab("people"); });
         $("tabGallery").addEventListener("click", function () { showAdmTab("gallery"); });

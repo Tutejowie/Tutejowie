@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wszystkie biografie – Tutejowie</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#232a36">
 
     <style>
         :root {
@@ -66,6 +70,7 @@
             letter-spacing: 0.5px;
             padding-bottom: 3px;
             border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
         }
         nav a:hover, nav a.current { border-bottom-color: var(--accent); }
 
@@ -171,17 +176,18 @@
 
     <header>
         <h1><a href="index.html">Tutejowie</a></h1>
-        <p>Archiwum biografii</p>
+        <p>Archiwum Genealogiczne, Biografie i Historia Rodu</p>
     </header>
     <div class="spectrum"></div>
 
     <nav>
-        <a href="index.html">← Strona główna</a>
-        <a href="index.html#drzewo">Drzewo genealogiczne</a>
-        <a href="index.html#biografie">Biografie</a>
-        <a href="biografie.html" class="current">Wszystkie biografie</a>
-        <a href="index.html#galeria">Galeria rodzinna</a>
-        <a href="galeria.html">Pełna galeria</a>
+        <a href="index.html">Strona główna</a>
+        <a href="index.html?widok=drzewo">Drzewo genealogiczne</a>
+        <a href="biografie.html" class="current">Biografie</a>
+        <a href="galeria.html">Galeria</a>
+        <a href="groby.html">Groby</a>
+        <a href="projekt.html">O projekcie</a>
+        <a href="kontakt.html">Kontakt</a>
     </nav>
 
     <div class="container">
@@ -226,8 +232,9 @@
 
     <!-- Opcjonalny plik z opublikowanymi danymi (ten sam, którego używa strona główna). -->
     <script src="dane.js"></script>
+    <script src="odblokuj.js"></script>
     <script>
-    (function () {
+    TutejaLock.ready(function () {
         "use strict";
         var LS_DATA = "tuteja_family_draft_v1", LS_ADMIN = "tuteja_admin";
         var U = "?";
@@ -432,7 +439,7 @@
             renderList();
             show(start, true);
         }
-    })();
+    });
     </script>
 
     <script>
