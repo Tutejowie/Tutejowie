@@ -468,6 +468,9 @@
         .gal-meta { margin: 0.25rem 0 0; font: 0.82rem sans-serif; color: var(--muted); min-height: 1.2em; }
         .gal-wrap .bio-arrow { top: 75px; }
 
+        body:not(.admin) #groby.no-graves { display: none; }
+        #groby .gal-card { text-decoration: none; color: inherit; display: block; }
+
         /* ---------- Urodziny (przewijany pasek) ---------- */
         .bd-strip { position: relative; display: flex; gap: 0.9rem; overflow-x: auto; padding: 0.6rem 0.3rem 1rem; scrollbar-width: thin; cursor: grab; scroll-snap-type: x proximity; scroll-padding-left: 0.3rem; }
         .bd-strip.dragging { cursor: grabbing; user-select: none; scroll-snap-type: none; }
@@ -1098,6 +1101,24 @@
                 <a id="galFolder" href="#" target="_blank" rel="noopener" hidden>Zdjęcia rodzinne znajdziesz w folderze na Dysku Google ↗</a>
                 <span class="admin-only"><br>Administratorze: dodaj zdjęcia do folderu na Dysku Google i w oknie „Galeria” wybierz „Synchronizuj z folderem” (albo dodaj zdjęcia ręcznie).</span>
             </p>
+        </section>
+
+        <!-- GROBY RODZINNE -->
+        <section id="groby" class="no-graves">
+            <h2>Groby rodzinne</h2>
+            <p>Miejsca spoczynku przodków – zdjęcia grobów, lokalizacja na cmentarzu i mapa dojścia. Kliknij grób, aby zobaczyć jego profil.</p>
+
+            <div class="bio-head">
+                <span class="bio-count" id="grvCount"></span>
+                <a class="btn ghost" href="groby.html">Wszystkie groby →</a>
+            </div>
+
+            <div class="bio-wrap gal-wrap" id="grvWrap">
+                <button type="button" class="bio-arrow prev" id="grvPrev" aria-label="Przewiń w lewo" hidden>&#8249;</button>
+                <div class="gal-strip" id="grvStrip" role="list" aria-label="Groby rodzinne"></div>
+                <button type="button" class="bio-arrow next" id="grvNext" aria-label="Przewiń w prawo" hidden>&#8250;</button>
+            </div>
+            <p class="bio-empty admin-only" id="grvEmpty">Nie dodano jeszcze żadnych grobów. Dodaj je w panelu administratora (zakładka „Groby”) – bez grobów ta sekcja jest ukryta dla odwiedzających.</p>
         </section>
 
         <!-- URODZINY -->
@@ -3285,6 +3306,56 @@
         galStrip.addEventListener("pointerup", endGdrag);
         galStrip.addEventListener("pointercancel", endGdrag);
 
+        /* ---------- Groby rodzinne: pasek na stronie głównej (do 10 grobów, reszta pod „Wszystkie groby”) ---------- */
+        var grvStrip = $("grvStrip");
+        function plGrobow(n) { var a = n % 10, b = n % 100; return n === 1 ? "grób" : (a >= 2 && a <= 4 && !(b >= 12 && b <= 14)) ? "groby" : "grobów"; }
+        function updateGrvArrows() {
+            var max = grvStrip.scrollWidth - grvStrip.clientWidth;
+            $("grvPrev").hidden = !(max > 4 && grvStrip.scrollLeft > 10);
+            $("grvNext").hidden = !(max > 4 && grvStrip.scrollLeft < max - 4);
+        }
+        function renderGraveStrip() {
+            var all = DATA.graves.items, list = all.slice(0, 10);
+            grvStrip.innerHTML = "";
+            $("groby").classList.toggle("no-graves", !all.length);
+            $("grvEmpty").hidden = all.length > 0;
+            $("grvWrap").hidden = !all.length;
+            $("grvCount").textContent = all.length ? (all.length > list.length ? "Pokazano: " + list.length + " z " + all.length + " grobów" : "Dostępne: " + all.length + " " + plGrobow(all.length)) : "";
+            list.forEach(function (g) {
+                var card = el("a", "gal-card");
+                card.href = "groby.html#" + g.id; card.setAttribute("role", "listitem"); card.draggable = false;
+                var ph = el("div", "gal-photo"), k = g.photos[0];
+                if (k) ph.appendChild(galImg(/^[A-Za-z0-9_-]{10,80}$/.test(k) ? { id: k } : { url: k }, 600));
+                else { ph.style.display = "flex"; ph.style.alignItems = "center"; ph.style.justifyContent = "center"; ph.style.fontSize = "2.2rem"; ph.textContent = "🪦"; }
+                var ov = el("div", "gal-ov");
+                ov.appendChild(el("span", "gal-open", "Zobacz grób"));
+                ph.appendChild(ov);
+                var info = el("div", "gal-info");
+                var names = g.persons.map(function (id) { return M.byId[id] ? M.byId[id].name : ""; }).filter(Boolean);
+                info.appendChild(el("h3", "gal-title", g.name || (names.length ? "Grób: " + names.slice(0, 2).join(", ") : "Grób")));
+                info.appendChild(el("p", "gal-meta", g.cemetery || ""));
+                card.appendChild(ph); card.appendChild(info);
+                grvStrip.appendChild(card);
+            });
+            updateGrvArrows();
+        }
+        grvStrip.addEventListener("scroll", updateGrvArrows);
+        window.addEventListener("resize", updateGrvArrows);
+        $("grvPrev").addEventListener("click", function () { grvStrip.scrollBy({ left: -grvStrip.clientWidth * 0.8, behavior: "smooth" }); });
+        $("grvNext").addEventListener("click", function () { grvStrip.scrollBy({ left: grvStrip.clientWidth * 0.8, behavior: "smooth" }); });
+        var vdrag = null, vmoved = false;
+        grvStrip.addEventListener("pointerdown", function (e) { if (e.pointerType !== "mouse" || e.button !== 0) return; vdrag = { x: e.clientX, sl: grvStrip.scrollLeft, moved: false }; vmoved = false; });
+        grvStrip.addEventListener("pointermove", function (e) {
+            if (!vdrag) return;
+            var dx = e.clientX - vdrag.x;
+            if (!vdrag.moved && Math.abs(dx) > 6) { vdrag.moved = true; vmoved = true; grvStrip.classList.add("dragging"); try { grvStrip.setPointerCapture(e.pointerId); } catch (err) {} }
+            if (vdrag.moved) grvStrip.scrollLeft = vdrag.sl - dx;
+        });
+        function endVdrag() { vdrag = null; grvStrip.classList.remove("dragging"); }
+        grvStrip.addEventListener("pointerup", endVdrag);
+        grvStrip.addEventListener("pointercancel", endVdrag);
+        grvStrip.addEventListener("click", function (e) { if (vmoved) { e.preventDefault(); vmoved = false; } });
+
         /* ---------- Urodziny: 3 ostatnie, dzisiejsze i 7 najbliższych (tylko osoby żyjące z pełną datą urodzenia) ---------- */
         var bdStrip = $("bdStrip");
         var MONTHS = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
@@ -3888,6 +3959,7 @@
             clearSearch();
             renderBioStrip();
             renderGalStrip();
+            renderGraveStrip();
             renderBirthdays();
             if (state.selId && !M.byId[state.selId]) closePanel();
             if (state.view === "branch" && !M.byId[state.branch]) { state.view = "pedigree"; state.branch = null; }
@@ -5139,6 +5211,7 @@
         fillGenSelect();
         renderBioStrip();
         renderGalStrip();
+        renderGraveStrip();
         renderBirthdays();
         render();
         syncToolbar();
