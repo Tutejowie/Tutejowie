@@ -330,7 +330,8 @@
     <script>
     TutejaLock.ready(function () {
         "use strict";
-        var LS_DATA = "tuteja_family_draft_v1", LS_ADMIN = "tuteja_admin";
+        var LS_SUF = "|" + (location.pathname.replace(/[^\/]*$/, "") || "/");
+        var LS_DATA = "tuteja_family_draft_v1" + LS_SUF, LS_ADMIN = "tuteja_admin" + LS_SUF;
         var DEFAULT_FOLDER_URL = "https://drive.google.com/drive/folders/1y1DfEpl5tj8DigdmCUcrGNjYY3lA1Dy7";
 
         function $(id) { return document.getElementById(id); }

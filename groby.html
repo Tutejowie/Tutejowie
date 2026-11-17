@@ -239,8 +239,9 @@
         var FOLDER = "https://drive.google.com/drive/folders/1EK0JHYQhBmZdr6V-StT-O8kTgVE_sxBe";
 
         function loadRaw() {
-            if (lsGet("tuteja_admin") === "1") {
-                var r = lsGet("tuteja_family_draft_v1");
+            var sfx = "|" + (location.pathname.replace(/[^\/]*$/, "") || "/");
+            if (lsGet("tuteja_admin" + sfx) === "1") {
+                var r = lsGet("tuteja_family_draft_v1" + sfx);
                 if (r) { try { var d = JSON.parse(r); if (d && Array.isArray(d.people)) { $("adminNote").hidden = false; return d; } } catch (e) {} }
             }
             return window.FAMILY_DATA && Array.isArray(window.FAMILY_DATA.people) ? window.FAMILY_DATA : {};

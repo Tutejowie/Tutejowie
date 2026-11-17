@@ -281,7 +281,7 @@
         nav a.home { border-bottom-color: var(--accent); }
         body.tree-only nav a.home { border-bottom-color: transparent; }
         body.tree-only nav a.tree-link { border-bottom-color: var(--accent); }
-        body.tree-only #biografie, body.tree-only #urodziny, body.tree-only #galeria,
+        body.tree-only #biografie, body.tree-only #urodziny, body.tree-only #galeria, body.tree-only #groby,
         body.tree-only #drzewo > h2 { display: none; }
         /* strona „Drzewo genealogiczne”: nagłówek i menu bez zmian; drzewo ma pełną wysokość, a strona przewija się w dół (bez powiększania) */
         body.tree-only:not(.tree-full) { background: #fff; background-image: none; }
@@ -2438,7 +2438,9 @@
         var F = FAMILY;
         var SVGNS = "http://www.w3.org/2000/svg";
         var TW = F.TW, TH = F.TH;
-        var LS_DATA = "tuteja_family_draft_v1", LS_ADMIN = "tuteja_admin", LS_DIRTY = "tuteja_dirty";
+        /* klucze zawierają ścieżkę folderu: Chrome trzyma wszystkie strony z dysku (file://) w jednej pamięci, więc bez tego różne kopie strony nadpisywałyby sobie wersję roboczą */
+        var LS_SUF = "|" + (location.pathname.replace(/[^\/]*$/, "") || "/");
+        var LS_BASE = "tuteja_base" + LS_SUF, LS_DATA = "tuteja_family_draft_v1" + LS_SUF, LS_ADMIN = "tuteja_admin" + LS_SUF, LS_DIRTY = "tuteja_dirty" + LS_SUF;
 
         function $(id) { return document.getElementById(id); }
         function S(tag, attrs, parent) {
@@ -2458,11 +2460,33 @@
         function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
 
         /* ---------- dane ---------- */
+        /* „odcisk” opublikowanego dane.js: gdy podmienisz plik (np. nowy zaszyfrowany z dane-pelne.js), kopia robocza z przeglądarki jest już nieaktualna */
+        var pubHashCache = null;
+        function pubHash() {
+            if (pubHashCache !== null) return pubHashCache;
+            var h = 5381, t = "";
+            try { t = JSON.stringify(window.FAMILY_DATA || null); } catch (e) { t = ""; }
+            for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0;
+            return (pubHashCache = t.length + ":" + (h >>> 0));
+        }
         function pickData(admin) {
             var d = null;
             if (admin) {
                 var raw = lsGet(LS_DATA);
                 if (raw) { try { d = F.normalize(JSON.parse(raw)); } catch (e) { d = null; } }
+                var base = lsGet(LS_BASE), ph = pubHash();
+                if (d && base && base !== ph) {                      // dane.js zmieniony od czasu zapisania kopii roboczej
+                    if (lsGet(LS_DIRTY) !== "1" || confirm("Plik dane.js został zmieniony od Twojej ostatniej pracy w panelu administratora, a w tej przeglądarce masz jeszcze niewyeksportowane zmiany.\n\nOK = użyj nowego pliku dane.js (niewyeksportowane zmiany z przeglądarki zostaną usunięte)\nAnuluj = zostaw stare zmiany z przeglądarki")) {
+                        lsDel(LS_DATA); lsDel(LS_DIRTY); lsDel(LS_BASE); d = null;
+                    } else lsSet(LS_BASE, ph);
+                }
+                /* zabezpieczenie: robocza kopia z tej przeglądarki jest dużo mniejsza niż opublikowane dane (np. stara kopia sprzed importu) */
+                var pub = window.FAMILY_DATA && Array.isArray(window.FAMILY_DATA.people) ? window.FAMILY_DATA.people.length : 0;
+                if (d && pub > 30 && d.people.length < pub * 0.8) {
+                    if (confirm("UWAGA: wersja robocza zapisana w tej przeglądarce ma " + d.people.length + " osób, a opublikowane dane na stronie – " + pub + ".\n\nTo zwykle stara kopia sprzed zmiany danych. Eksport z niej nadpisałby pełne drzewo.\n\nOK = użyj opublikowanych danych (" + pub + " osób) i usuń starą kopię roboczą\nAnuluj = zostaw wersję roboczą (" + d.people.length + " osób)")) {
+                        lsDel(LS_DATA); lsDel(LS_DIRTY); d = null;
+                    }
+                }
             }
             if (!d && window.FAMILY_DATA) d = F.normalize(window.FAMILY_DATA);
             if (!d) d = F.normalize(F.buildSeed());
@@ -3976,6 +4000,7 @@
                 warnedQuota = true;
                 alert("Nie udało się zapisać zmian w pamięci przeglądarki (zabrakło miejsca – to zwykle przez zdjęcia).\n\nWyeksportuj dane teraz przyciskiem „Eksportuj dane”, żeby ich nie stracić.");
             }
+            if (!lsGet(LS_BASE)) lsSet(LS_BASE, pubHash());
             lsSet(LS_DIRTY, "1");
             afterModelChange();
         }
@@ -4266,6 +4291,8 @@
 
         function exportData() {
             if (LOCKED && !unlocked) { alert("Dane żyjących są jeszcze zablokowane – eksport teraz zapisałby puste kafelki. Najpierw kliknij „Odblokuj dane rodziny”."); return; }
+            var pubN = window.FAMILY_DATA && Array.isArray(window.FAMILY_DATA.people) ? window.FAMILY_DATA.people.length : 0;
+            if (pubN > 30 && DATA.people.length < pubN * 0.8 && !confirm("UWAGA: eksportujesz " + DATA.people.length + " osób, a opublikowane dane na stronie mają ich " + pubN + ".\n\nTen plik nadpisze pełne drzewo mniejszą wersją. Wyeksportować mimo to?")) return;
             var txt = "/* Dane drzewa genealogicznego – wygenerowane w panelu administratora: " + new Date().toLocaleString("pl-PL") + " */\n" +
                 "window.FAMILY_DATA = " + JSON.stringify(DATA, null, 1) + ";\n";
             var blob = new Blob([txt], { type: "text/javascript" });
@@ -4336,7 +4363,7 @@
         });
         $("admReset").addEventListener("click", function () {
             if (!confirm("Usunąć wszystkie zmiany zapisane w tej przeglądarce i wrócić do opublikowanych danych?")) return;
-            lsDel(LS_DATA); lsDel(LS_DIRTY);
+            lsDel(LS_DATA); lsDel(LS_DIRTY); lsDel(LS_BASE);
             DATA = pickData(false);
             afterModelChange();
         });
@@ -5065,7 +5092,7 @@
         $("grPSearch").addEventListener("input", function () {
             var q = fold(this.value.trim()), box = $("grPRes"); box.innerHTML = "";
             if (!q) { box.hidden = true; return; }
-            var res = M.people.filter(function (p) { return !p.living && p.d && grEdit.persons.indexOf(p.id) === -1 && fold(p.name + " " + (p.maiden || "")).indexOf(q) !== -1; })
+            var res = M.people.filter(function (p) { return !p.living && grEdit.persons.indexOf(p.id) === -1 && fold(p.name + " " + (p.maiden || "")).indexOf(q) !== -1; })
                 .sort(function (a, b) { return (a.d ? 0 : 1) - (b.d ? 0 : 1) || a.name.localeCompare(b.name, "pl"); }).slice(0, 12);
             if (!res.length) { box.appendChild(el("div", "lib-info", "Nikogo nie znaleziono.")); box.hidden = false; return; }
             res.forEach(function (p) {
